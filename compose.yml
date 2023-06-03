@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    container_name: hellovis_server
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - 8080:8080
+    env_file:
+      - ./db/.env
+    depends_on:
+      - db
+    volumes:
+      - type: bind
+        source: ./server/src
+        target: /backend/src
+
+  db:
+    container_name: hellovis_db
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    tty: true
+    platform: linux/x86_64
+    ports:
+      - 3306:3306
+    env_file:
+      - ./db/.env
+    volumes:
+      - type: volume
+        source: hellovis_db
+        target: /var/lib/mysql
+
+volumes:
+  hellovis_db:
+    name: hellovis_db

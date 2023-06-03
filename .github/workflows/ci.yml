@@ -1,0 +1,46 @@
+name: CI - backend
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - server/src/**
+      - .github/workflows/ci.yml
+      - "!README.md"
+  pull_request:
+    paths:
+      - server/src/**
+      - .github/workflows/ci.yml
+      - "!README.md"
+
+defaults:
+  run:
+    working-directory: server/src
+
+jobs:
+  # ユニットテストの実行およびカバレッジレポートの生成を行い、ビルドを実行する
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || '' }}
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: "server/src/go.mod"
+          check-latest: true
+          cache: true
+          cache-dependency-path: server/src/go.sum
+      - name: Test
+        run: go test $(go list ./... | grep -v -e /ent) -cover -coverprofile=cover.out
+      - name: Upload Coverage Report
+        run: go tool cover -html=cover.out -o cover.html
+      - name: UploadReport
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: server/src/cover.html
+          retention-days: 7
+      - name: Build
+        run: go build main.go
