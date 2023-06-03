@@ -1,9 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"hellovis/api"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
-	fmt.Println("Hello World")
+	router, entClient := api.InitAPI()
+	defer entClient.Close()
+
+	router.Run()
 }

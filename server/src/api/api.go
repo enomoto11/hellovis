@@ -33,15 +33,15 @@ func InitAPI() (*gin.Engine, *ent.Client) {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	// controllers := setUpControllers(entClient)
-	// for _, controller := range controllers {
-	// 	controller.Register(router)
-	// }
+	controllers := setUpControllers(entClient)
+	for _, controller := range controllers {
+		controller.Register(router)
+	}
 
 	return router, entClient
 }
 
-// func setUpControllers(entClient *ent.Client) []Controller {
+func setUpControllers(entClient *ent.Client) []Controller {
 
-// 	return []Controller{}
-// }
+	return []Controller{}
+}
