@@ -11,7 +11,7 @@ type StudentCheckout struct {
 	id           uuid.UUID `json:"id"`
 	studentID    uuid.UUID `json:"student_id"`
 	manavisCode  string    `json:"manavis_code"`
-	checkedOutAt time.Time `json:"checked_in_at"`
+	checkedOutAt time.Time `json:"checked_out_at"`
 }
 
 type NewStudentCheckoutOption func(*StudentCheckout)
