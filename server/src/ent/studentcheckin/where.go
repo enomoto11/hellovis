@@ -76,6 +76,11 @@ func StudentID(v uuid.UUID) predicate.StudentCheckin {
 	return predicate.StudentCheckin(sql.FieldEQ(FieldStudentID, v))
 }
 
+// CheckinAt applies equality check predicate on the "checkin_at" field. It's identical to CheckinAtEQ.
+func CheckinAt(v time.Time) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldEQ(FieldCheckinAt, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.StudentCheckin {
 	return predicate.StudentCheckin(sql.FieldEQ(FieldCreatedAt, v))
@@ -214,6 +219,46 @@ func StudentIDIn(vs ...uuid.UUID) predicate.StudentCheckin {
 // StudentIDNotIn applies the NotIn predicate on the "student_id" field.
 func StudentIDNotIn(vs ...uuid.UUID) predicate.StudentCheckin {
 	return predicate.StudentCheckin(sql.FieldNotIn(FieldStudentID, vs...))
+}
+
+// CheckinAtEQ applies the EQ predicate on the "checkin_at" field.
+func CheckinAtEQ(v time.Time) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldEQ(FieldCheckinAt, v))
+}
+
+// CheckinAtNEQ applies the NEQ predicate on the "checkin_at" field.
+func CheckinAtNEQ(v time.Time) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldNEQ(FieldCheckinAt, v))
+}
+
+// CheckinAtIn applies the In predicate on the "checkin_at" field.
+func CheckinAtIn(vs ...time.Time) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldIn(FieldCheckinAt, vs...))
+}
+
+// CheckinAtNotIn applies the NotIn predicate on the "checkin_at" field.
+func CheckinAtNotIn(vs ...time.Time) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldNotIn(FieldCheckinAt, vs...))
+}
+
+// CheckinAtGT applies the GT predicate on the "checkin_at" field.
+func CheckinAtGT(v time.Time) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldGT(FieldCheckinAt, v))
+}
+
+// CheckinAtGTE applies the GTE predicate on the "checkin_at" field.
+func CheckinAtGTE(v time.Time) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldGTE(FieldCheckinAt, v))
+}
+
+// CheckinAtLT applies the LT predicate on the "checkin_at" field.
+func CheckinAtLT(v time.Time) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldLT(FieldCheckinAt, v))
+}
+
+// CheckinAtLTE applies the LTE predicate on the "checkin_at" field.
+func CheckinAtLTE(v time.Time) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldLTE(FieldCheckinAt, v))
 }
 
 // HasStudent applies the HasEdge predicate on the "student" edge.

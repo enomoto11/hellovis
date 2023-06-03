@@ -62,6 +62,20 @@ func (scc *StudentCheckoutCreate) SetStudentID(u uuid.UUID) *StudentCheckoutCrea
 	return scc
 }
 
+// SetCheckoutAt sets the "checkout_at" field.
+func (scc *StudentCheckoutCreate) SetCheckoutAt(t time.Time) *StudentCheckoutCreate {
+	scc.mutation.SetCheckoutAt(t)
+	return scc
+}
+
+// SetNillableCheckoutAt sets the "checkout_at" field if the given value is not nil.
+func (scc *StudentCheckoutCreate) SetNillableCheckoutAt(t *time.Time) *StudentCheckoutCreate {
+	if t != nil {
+		scc.SetCheckoutAt(*t)
+	}
+	return scc
+}
+
 // SetID sets the "id" field.
 func (scc *StudentCheckoutCreate) SetID(u uuid.UUID) *StudentCheckoutCreate {
 	scc.mutation.SetID(u)
@@ -124,6 +138,10 @@ func (scc *StudentCheckoutCreate) defaults() {
 		v := studentcheckout.DefaultUpdatedAt()
 		scc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := scc.mutation.CheckoutAt(); !ok {
+		v := studentcheckout.DefaultCheckoutAt()
+		scc.mutation.SetCheckoutAt(v)
+	}
 	if _, ok := scc.mutation.ID(); !ok {
 		v := studentcheckout.DefaultID()
 		scc.mutation.SetID(v)
@@ -143,6 +161,9 @@ func (scc *StudentCheckoutCreate) check() error {
 	}
 	if _, ok := scc.mutation.StudentID(); !ok {
 		return &ValidationError{Name: "student_id", err: errors.New(`ent: missing required field "StudentCheckout.student_id"`)}
+	}
+	if _, ok := scc.mutation.CheckoutAt(); !ok {
+		return &ValidationError{Name: "checkout_at", err: errors.New(`ent: missing required field "StudentCheckout.checkout_at"`)}
 	}
 	if _, ok := scc.mutation.StudentID(); !ok {
 		return &ValidationError{Name: "student", err: errors.New(`ent: missing required edge "StudentCheckout.student"`)}
@@ -193,6 +214,10 @@ func (scc *StudentCheckoutCreate) createSpec() (*StudentCheckout, *sqlgraph.Crea
 	if value, ok := scc.mutation.DeletedAt(); ok {
 		_spec.SetField(studentcheckout.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = value
+	}
+	if value, ok := scc.mutation.CheckoutAt(); ok {
+		_spec.SetField(studentcheckout.FieldCheckoutAt, field.TypeTime, value)
+		_node.CheckoutAt = value
 	}
 	if nodes := scc.mutation.StudentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

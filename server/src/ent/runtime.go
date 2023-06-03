@@ -92,6 +92,10 @@ func init() {
 	studentcheckinDescDeletedAt := studentcheckinMixinFields0[2].Descriptor()
 	// studentcheckin.UpdateDefaultDeletedAt holds the default value on update for the deleted_at field.
 	studentcheckin.UpdateDefaultDeletedAt = studentcheckinDescDeletedAt.UpdateDefault.(func() time.Time)
+	// studentcheckinDescCheckinAt is the schema descriptor for checkin_at field.
+	studentcheckinDescCheckinAt := studentcheckinFields[1].Descriptor()
+	// studentcheckin.DefaultCheckinAt holds the default value on creation for the checkin_at field.
+	studentcheckin.DefaultCheckinAt = studentcheckinDescCheckinAt.Default.(func() time.Time)
 	// studentcheckinDescID is the schema descriptor for id field.
 	studentcheckinDescID := studentcheckinMixinFields1[0].Descriptor()
 	// studentcheckin.DefaultID holds the default value on creation for the id field.
@@ -117,6 +121,10 @@ func init() {
 	studentcheckoutDescDeletedAt := studentcheckoutMixinFields0[2].Descriptor()
 	// studentcheckout.UpdateDefaultDeletedAt holds the default value on update for the deleted_at field.
 	studentcheckout.UpdateDefaultDeletedAt = studentcheckoutDescDeletedAt.UpdateDefault.(func() time.Time)
+	// studentcheckoutDescCheckoutAt is the schema descriptor for checkout_at field.
+	studentcheckoutDescCheckoutAt := studentcheckoutFields[1].Descriptor()
+	// studentcheckout.DefaultCheckoutAt holds the default value on creation for the checkout_at field.
+	studentcheckout.DefaultCheckoutAt = studentcheckoutDescCheckoutAt.Default.(func() time.Time)
 	// studentcheckoutDescID is the schema descriptor for id field.
 	studentcheckoutDescID := studentcheckoutMixinFields1[0].Descriptor()
 	// studentcheckout.DefaultID holds the default value on creation for the id field.

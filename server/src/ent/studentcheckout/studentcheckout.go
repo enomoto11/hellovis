@@ -23,6 +23,8 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldStudentID holds the string denoting the student_id field in the database.
 	FieldStudentID = "student_id"
+	// FieldCheckoutAt holds the string denoting the checkout_at field in the database.
+	FieldCheckoutAt = "checkout_at"
 	// EdgeStudent holds the string denoting the student edge name in mutations.
 	EdgeStudent = "student"
 	// Table holds the table name of the studentcheckout in the database.
@@ -43,6 +45,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldStudentID,
+	FieldCheckoutAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -64,6 +67,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// UpdateDefaultDeletedAt holds the default value on update for the "deleted_at" field.
 	UpdateDefaultDeletedAt func() time.Time
+	// DefaultCheckoutAt holds the default value on creation for the "checkout_at" field.
+	DefaultCheckoutAt func() time.Time
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -94,6 +99,11 @@ func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByStudentID orders the results by the student_id field.
 func ByStudentID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStudentID, opts...).ToFunc()
+}
+
+// ByCheckoutAt orders the results by the checkout_at field.
+func ByCheckoutAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCheckoutAt, opts...).ToFunc()
 }
 
 // ByStudentField orders the results by student field.

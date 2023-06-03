@@ -62,6 +62,20 @@ func (scc *StudentCheckinCreate) SetStudentID(u uuid.UUID) *StudentCheckinCreate
 	return scc
 }
 
+// SetCheckinAt sets the "checkin_at" field.
+func (scc *StudentCheckinCreate) SetCheckinAt(t time.Time) *StudentCheckinCreate {
+	scc.mutation.SetCheckinAt(t)
+	return scc
+}
+
+// SetNillableCheckinAt sets the "checkin_at" field if the given value is not nil.
+func (scc *StudentCheckinCreate) SetNillableCheckinAt(t *time.Time) *StudentCheckinCreate {
+	if t != nil {
+		scc.SetCheckinAt(*t)
+	}
+	return scc
+}
+
 // SetID sets the "id" field.
 func (scc *StudentCheckinCreate) SetID(u uuid.UUID) *StudentCheckinCreate {
 	scc.mutation.SetID(u)
@@ -124,6 +138,10 @@ func (scc *StudentCheckinCreate) defaults() {
 		v := studentcheckin.DefaultUpdatedAt()
 		scc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := scc.mutation.CheckinAt(); !ok {
+		v := studentcheckin.DefaultCheckinAt()
+		scc.mutation.SetCheckinAt(v)
+	}
 	if _, ok := scc.mutation.ID(); !ok {
 		v := studentcheckin.DefaultID()
 		scc.mutation.SetID(v)
@@ -143,6 +161,9 @@ func (scc *StudentCheckinCreate) check() error {
 	}
 	if _, ok := scc.mutation.StudentID(); !ok {
 		return &ValidationError{Name: "student_id", err: errors.New(`ent: missing required field "StudentCheckin.student_id"`)}
+	}
+	if _, ok := scc.mutation.CheckinAt(); !ok {
+		return &ValidationError{Name: "checkin_at", err: errors.New(`ent: missing required field "StudentCheckin.checkin_at"`)}
 	}
 	if _, ok := scc.mutation.StudentID(); !ok {
 		return &ValidationError{Name: "student", err: errors.New(`ent: missing required edge "StudentCheckin.student"`)}
@@ -193,6 +214,10 @@ func (scc *StudentCheckinCreate) createSpec() (*StudentCheckin, *sqlgraph.Create
 	if value, ok := scc.mutation.DeletedAt(); ok {
 		_spec.SetField(studentcheckin.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = value
+	}
+	if value, ok := scc.mutation.CheckinAt(); ok {
+		_spec.SetField(studentcheckin.FieldCheckinAt, field.TypeTime, value)
+		_node.CheckinAt = value
 	}
 	if nodes := scc.mutation.StudentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

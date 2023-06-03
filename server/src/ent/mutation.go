@@ -909,6 +909,7 @@ type StudentCheckinMutation struct {
 	created_at     *time.Time
 	updated_at     *time.Time
 	deleted_at     *time.Time
+	checkin_at     *time.Time
 	clearedFields  map[string]struct{}
 	student        *uuid.UUID
 	clearedstudent bool
@@ -1165,6 +1166,42 @@ func (m *StudentCheckinMutation) ResetStudentID() {
 	m.student = nil
 }
 
+// SetCheckinAt sets the "checkin_at" field.
+func (m *StudentCheckinMutation) SetCheckinAt(t time.Time) {
+	m.checkin_at = &t
+}
+
+// CheckinAt returns the value of the "checkin_at" field in the mutation.
+func (m *StudentCheckinMutation) CheckinAt() (r time.Time, exists bool) {
+	v := m.checkin_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCheckinAt returns the old "checkin_at" field's value of the StudentCheckin entity.
+// If the StudentCheckin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StudentCheckinMutation) OldCheckinAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCheckinAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCheckinAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCheckinAt: %w", err)
+	}
+	return oldValue.CheckinAt, nil
+}
+
+// ResetCheckinAt resets all changes to the "checkin_at" field.
+func (m *StudentCheckinMutation) ResetCheckinAt() {
+	m.checkin_at = nil
+}
+
 // ClearStudent clears the "student" edge to the Student entity.
 func (m *StudentCheckinMutation) ClearStudent() {
 	m.clearedstudent = true
@@ -1225,7 +1262,7 @@ func (m *StudentCheckinMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StudentCheckinMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.created_at != nil {
 		fields = append(fields, studentcheckin.FieldCreatedAt)
 	}
@@ -1237,6 +1274,9 @@ func (m *StudentCheckinMutation) Fields() []string {
 	}
 	if m.student != nil {
 		fields = append(fields, studentcheckin.FieldStudentID)
+	}
+	if m.checkin_at != nil {
+		fields = append(fields, studentcheckin.FieldCheckinAt)
 	}
 	return fields
 }
@@ -1254,6 +1294,8 @@ func (m *StudentCheckinMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case studentcheckin.FieldStudentID:
 		return m.StudentID()
+	case studentcheckin.FieldCheckinAt:
+		return m.CheckinAt()
 	}
 	return nil, false
 }
@@ -1271,6 +1313,8 @@ func (m *StudentCheckinMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldDeletedAt(ctx)
 	case studentcheckin.FieldStudentID:
 		return m.OldStudentID(ctx)
+	case studentcheckin.FieldCheckinAt:
+		return m.OldCheckinAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown StudentCheckin field %s", name)
 }
@@ -1307,6 +1351,13 @@ func (m *StudentCheckinMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStudentID(v)
+		return nil
+	case studentcheckin.FieldCheckinAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCheckinAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown StudentCheckin field %s", name)
@@ -1368,6 +1419,9 @@ func (m *StudentCheckinMutation) ResetField(name string) error {
 		return nil
 	case studentcheckin.FieldStudentID:
 		m.ResetStudentID()
+		return nil
+	case studentcheckin.FieldCheckinAt:
+		m.ResetCheckinAt()
 		return nil
 	}
 	return fmt.Errorf("unknown StudentCheckin field %s", name)
@@ -1456,6 +1510,7 @@ type StudentCheckoutMutation struct {
 	created_at     *time.Time
 	updated_at     *time.Time
 	deleted_at     *time.Time
+	checkout_at    *time.Time
 	clearedFields  map[string]struct{}
 	student        *uuid.UUID
 	clearedstudent bool
@@ -1712,6 +1767,42 @@ func (m *StudentCheckoutMutation) ResetStudentID() {
 	m.student = nil
 }
 
+// SetCheckoutAt sets the "checkout_at" field.
+func (m *StudentCheckoutMutation) SetCheckoutAt(t time.Time) {
+	m.checkout_at = &t
+}
+
+// CheckoutAt returns the value of the "checkout_at" field in the mutation.
+func (m *StudentCheckoutMutation) CheckoutAt() (r time.Time, exists bool) {
+	v := m.checkout_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCheckoutAt returns the old "checkout_at" field's value of the StudentCheckout entity.
+// If the StudentCheckout object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StudentCheckoutMutation) OldCheckoutAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCheckoutAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCheckoutAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCheckoutAt: %w", err)
+	}
+	return oldValue.CheckoutAt, nil
+}
+
+// ResetCheckoutAt resets all changes to the "checkout_at" field.
+func (m *StudentCheckoutMutation) ResetCheckoutAt() {
+	m.checkout_at = nil
+}
+
 // ClearStudent clears the "student" edge to the Student entity.
 func (m *StudentCheckoutMutation) ClearStudent() {
 	m.clearedstudent = true
@@ -1772,7 +1863,7 @@ func (m *StudentCheckoutMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StudentCheckoutMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.created_at != nil {
 		fields = append(fields, studentcheckout.FieldCreatedAt)
 	}
@@ -1784,6 +1875,9 @@ func (m *StudentCheckoutMutation) Fields() []string {
 	}
 	if m.student != nil {
 		fields = append(fields, studentcheckout.FieldStudentID)
+	}
+	if m.checkout_at != nil {
+		fields = append(fields, studentcheckout.FieldCheckoutAt)
 	}
 	return fields
 }
@@ -1801,6 +1895,8 @@ func (m *StudentCheckoutMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case studentcheckout.FieldStudentID:
 		return m.StudentID()
+	case studentcheckout.FieldCheckoutAt:
+		return m.CheckoutAt()
 	}
 	return nil, false
 }
@@ -1818,6 +1914,8 @@ func (m *StudentCheckoutMutation) OldField(ctx context.Context, name string) (en
 		return m.OldDeletedAt(ctx)
 	case studentcheckout.FieldStudentID:
 		return m.OldStudentID(ctx)
+	case studentcheckout.FieldCheckoutAt:
+		return m.OldCheckoutAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown StudentCheckout field %s", name)
 }
@@ -1854,6 +1952,13 @@ func (m *StudentCheckoutMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStudentID(v)
+		return nil
+	case studentcheckout.FieldCheckoutAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCheckoutAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown StudentCheckout field %s", name)
@@ -1915,6 +2020,9 @@ func (m *StudentCheckoutMutation) ResetField(name string) error {
 		return nil
 	case studentcheckout.FieldStudentID:
 		m.ResetStudentID()
+		return nil
+	case studentcheckout.FieldCheckoutAt:
+		m.ResetCheckoutAt()
 		return nil
 	}
 	return fmt.Errorf("unknown StudentCheckout field %s", name)

@@ -27,6 +27,8 @@ type StudentCheckin struct {
 	DeletedAt time.Time `json:"deleted_at,omitempty"`
 	// StudentID holds the value of the "student_id" field.
 	StudentID uuid.UUID `json:"student_id,omitempty"`
+	// CheckinAt holds the value of the "checkin_at" field.
+	CheckinAt time.Time `json:"checkin_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the StudentCheckinQuery when eager-loading is set.
 	Edges        StudentCheckinEdges `json:"edges"`
@@ -60,7 +62,7 @@ func (*StudentCheckin) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case studentcheckin.FieldCreatedAt, studentcheckin.FieldUpdatedAt, studentcheckin.FieldDeletedAt:
+		case studentcheckin.FieldCreatedAt, studentcheckin.FieldUpdatedAt, studentcheckin.FieldDeletedAt, studentcheckin.FieldCheckinAt:
 			values[i] = new(sql.NullTime)
 		case studentcheckin.FieldID, studentcheckin.FieldStudentID:
 			values[i] = new(uuid.UUID)
@@ -108,6 +110,12 @@ func (sc *StudentCheckin) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field student_id", values[i])
 			} else if value != nil {
 				sc.StudentID = *value
+			}
+		case studentcheckin.FieldCheckinAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field checkin_at", values[i])
+			} else if value.Valid {
+				sc.CheckinAt = value.Time
 			}
 		default:
 			sc.selectValues.Set(columns[i], values[i])
@@ -161,6 +169,9 @@ func (sc *StudentCheckin) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("student_id=")
 	builder.WriteString(fmt.Sprintf("%v", sc.StudentID))
+	builder.WriteString(", ")
+	builder.WriteString("checkin_at=")
+	builder.WriteString(sc.CheckinAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

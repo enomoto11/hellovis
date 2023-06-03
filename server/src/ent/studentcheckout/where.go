@@ -76,6 +76,11 @@ func StudentID(v uuid.UUID) predicate.StudentCheckout {
 	return predicate.StudentCheckout(sql.FieldEQ(FieldStudentID, v))
 }
 
+// CheckoutAt applies equality check predicate on the "checkout_at" field. It's identical to CheckoutAtEQ.
+func CheckoutAt(v time.Time) predicate.StudentCheckout {
+	return predicate.StudentCheckout(sql.FieldEQ(FieldCheckoutAt, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.StudentCheckout {
 	return predicate.StudentCheckout(sql.FieldEQ(FieldCreatedAt, v))
@@ -214,6 +219,46 @@ func StudentIDIn(vs ...uuid.UUID) predicate.StudentCheckout {
 // StudentIDNotIn applies the NotIn predicate on the "student_id" field.
 func StudentIDNotIn(vs ...uuid.UUID) predicate.StudentCheckout {
 	return predicate.StudentCheckout(sql.FieldNotIn(FieldStudentID, vs...))
+}
+
+// CheckoutAtEQ applies the EQ predicate on the "checkout_at" field.
+func CheckoutAtEQ(v time.Time) predicate.StudentCheckout {
+	return predicate.StudentCheckout(sql.FieldEQ(FieldCheckoutAt, v))
+}
+
+// CheckoutAtNEQ applies the NEQ predicate on the "checkout_at" field.
+func CheckoutAtNEQ(v time.Time) predicate.StudentCheckout {
+	return predicate.StudentCheckout(sql.FieldNEQ(FieldCheckoutAt, v))
+}
+
+// CheckoutAtIn applies the In predicate on the "checkout_at" field.
+func CheckoutAtIn(vs ...time.Time) predicate.StudentCheckout {
+	return predicate.StudentCheckout(sql.FieldIn(FieldCheckoutAt, vs...))
+}
+
+// CheckoutAtNotIn applies the NotIn predicate on the "checkout_at" field.
+func CheckoutAtNotIn(vs ...time.Time) predicate.StudentCheckout {
+	return predicate.StudentCheckout(sql.FieldNotIn(FieldCheckoutAt, vs...))
+}
+
+// CheckoutAtGT applies the GT predicate on the "checkout_at" field.
+func CheckoutAtGT(v time.Time) predicate.StudentCheckout {
+	return predicate.StudentCheckout(sql.FieldGT(FieldCheckoutAt, v))
+}
+
+// CheckoutAtGTE applies the GTE predicate on the "checkout_at" field.
+func CheckoutAtGTE(v time.Time) predicate.StudentCheckout {
+	return predicate.StudentCheckout(sql.FieldGTE(FieldCheckoutAt, v))
+}
+
+// CheckoutAtLT applies the LT predicate on the "checkout_at" field.
+func CheckoutAtLT(v time.Time) predicate.StudentCheckout {
+	return predicate.StudentCheckout(sql.FieldLT(FieldCheckoutAt, v))
+}
+
+// CheckoutAtLTE applies the LTE predicate on the "checkout_at" field.
+func CheckoutAtLTE(v time.Time) predicate.StudentCheckout {
+	return predicate.StudentCheckout(sql.FieldLTE(FieldCheckoutAt, v))
 }
 
 // HasStudent applies the HasEdge predicate on the "student" edge.
