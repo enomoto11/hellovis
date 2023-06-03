@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -20,8 +21,34 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldLastName holds the string denoting the last_name field in the database.
+	FieldLastName = "last_name"
+	// FieldFirstName holds the string denoting the first_name field in the database.
+	FieldFirstName = "first_name"
+	// FieldGrade holds the string denoting the grade field in the database.
+	FieldGrade = "grade"
+	// FieldManavisCode holds the string denoting the manavis_code field in the database.
+	FieldManavisCode = "manavis_code"
+	// EdgeCheckins holds the string denoting the checkins edge name in mutations.
+	EdgeCheckins = "checkins"
+	// EdgeCheckouts holds the string denoting the checkouts edge name in mutations.
+	EdgeCheckouts = "checkouts"
 	// Table holds the table name of the student in the database.
 	Table = "students"
+	// CheckinsTable is the table that holds the checkins relation/edge.
+	CheckinsTable = "student_checkins"
+	// CheckinsInverseTable is the table name for the StudentCheckin entity.
+	// It exists in this package in order to avoid circular dependency with the "studentcheckin" package.
+	CheckinsInverseTable = "student_checkins"
+	// CheckinsColumn is the table column denoting the checkins relation/edge.
+	CheckinsColumn = "student_id"
+	// CheckoutsTable is the table that holds the checkouts relation/edge.
+	CheckoutsTable = "student_checkouts"
+	// CheckoutsInverseTable is the table name for the StudentCheckout entity.
+	// It exists in this package in order to avoid circular dependency with the "studentcheckout" package.
+	CheckoutsInverseTable = "student_checkouts"
+	// CheckoutsColumn is the table column denoting the checkouts relation/edge.
+	CheckoutsColumn = "student_id"
 )
 
 // Columns holds all SQL columns for student fields.
@@ -30,6 +57,10 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
+	FieldLastName,
+	FieldFirstName,
+	FieldGrade,
+	FieldManavisCode,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -51,6 +82,14 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// UpdateDefaultDeletedAt holds the default value on update for the "deleted_at" field.
 	UpdateDefaultDeletedAt func() time.Time
+	// LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
+	LastNameValidator func(string) error
+	// FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
+	FirstNameValidator func(string) error
+	// GradeValidator is a validator for the "grade" field. It is called by the builders before save.
+	GradeValidator func(int16) error
+	// ManavisCodeValidator is a validator for the "manavis_code" field. It is called by the builders before save.
+	ManavisCodeValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -76,4 +115,66 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByLastName orders the results by the last_name field.
+func ByLastName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastName, opts...).ToFunc()
+}
+
+// ByFirstName orders the results by the first_name field.
+func ByFirstName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFirstName, opts...).ToFunc()
+}
+
+// ByGrade orders the results by the grade field.
+func ByGrade(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGrade, opts...).ToFunc()
+}
+
+// ByManavisCode orders the results by the manavis_code field.
+func ByManavisCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldManavisCode, opts...).ToFunc()
+}
+
+// ByCheckinsCount orders the results by checkins count.
+func ByCheckinsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCheckinsStep(), opts...)
+	}
+}
+
+// ByCheckins orders the results by checkins terms.
+func ByCheckins(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCheckinsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByCheckoutsCount orders the results by checkouts count.
+func ByCheckoutsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCheckoutsStep(), opts...)
+	}
+}
+
+// ByCheckouts orders the results by checkouts terms.
+func ByCheckouts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCheckoutsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newCheckinsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CheckinsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CheckinsTable, CheckinsColumn),
+	)
+}
+func newCheckoutsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CheckoutsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CheckoutsTable, CheckoutsColumn),
+	)
 }

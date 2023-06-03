@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"hellovis/ent/student"
+	"hellovis/ent/studentcheckin"
+	"hellovis/ent/studentcheckout"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -55,6 +57,30 @@ func (sc *StudentCreate) SetDeletedAt(t time.Time) *StudentCreate {
 	return sc
 }
 
+// SetLastName sets the "last_name" field.
+func (sc *StudentCreate) SetLastName(s string) *StudentCreate {
+	sc.mutation.SetLastName(s)
+	return sc
+}
+
+// SetFirstName sets the "first_name" field.
+func (sc *StudentCreate) SetFirstName(s string) *StudentCreate {
+	sc.mutation.SetFirstName(s)
+	return sc
+}
+
+// SetGrade sets the "grade" field.
+func (sc *StudentCreate) SetGrade(i int16) *StudentCreate {
+	sc.mutation.SetGrade(i)
+	return sc
+}
+
+// SetManavisCode sets the "manavis_code" field.
+func (sc *StudentCreate) SetManavisCode(s string) *StudentCreate {
+	sc.mutation.SetManavisCode(s)
+	return sc
+}
+
 // SetID sets the "id" field.
 func (sc *StudentCreate) SetID(u uuid.UUID) *StudentCreate {
 	sc.mutation.SetID(u)
@@ -67,6 +93,36 @@ func (sc *StudentCreate) SetNillableID(u *uuid.UUID) *StudentCreate {
 		sc.SetID(*u)
 	}
 	return sc
+}
+
+// AddCheckinIDs adds the "checkins" edge to the StudentCheckin entity by IDs.
+func (sc *StudentCreate) AddCheckinIDs(ids ...uuid.UUID) *StudentCreate {
+	sc.mutation.AddCheckinIDs(ids...)
+	return sc
+}
+
+// AddCheckins adds the "checkins" edges to the StudentCheckin entity.
+func (sc *StudentCreate) AddCheckins(s ...*StudentCheckin) *StudentCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return sc.AddCheckinIDs(ids...)
+}
+
+// AddCheckoutIDs adds the "checkouts" edge to the StudentCheckout entity by IDs.
+func (sc *StudentCreate) AddCheckoutIDs(ids ...uuid.UUID) *StudentCreate {
+	sc.mutation.AddCheckoutIDs(ids...)
+	return sc
+}
+
+// AddCheckouts adds the "checkouts" edges to the StudentCheckout entity.
+func (sc *StudentCreate) AddCheckouts(s ...*StudentCheckout) *StudentCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return sc.AddCheckoutIDs(ids...)
 }
 
 // Mutation returns the StudentMutation object of the builder.
@@ -129,6 +185,38 @@ func (sc *StudentCreate) check() error {
 	if _, ok := sc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "Student.deleted_at"`)}
 	}
+	if _, ok := sc.mutation.LastName(); !ok {
+		return &ValidationError{Name: "last_name", err: errors.New(`ent: missing required field "Student.last_name"`)}
+	}
+	if v, ok := sc.mutation.LastName(); ok {
+		if err := student.LastNameValidator(v); err != nil {
+			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "Student.last_name": %w`, err)}
+		}
+	}
+	if _, ok := sc.mutation.FirstName(); !ok {
+		return &ValidationError{Name: "first_name", err: errors.New(`ent: missing required field "Student.first_name"`)}
+	}
+	if v, ok := sc.mutation.FirstName(); ok {
+		if err := student.FirstNameValidator(v); err != nil {
+			return &ValidationError{Name: "first_name", err: fmt.Errorf(`ent: validator failed for field "Student.first_name": %w`, err)}
+		}
+	}
+	if _, ok := sc.mutation.Grade(); !ok {
+		return &ValidationError{Name: "grade", err: errors.New(`ent: missing required field "Student.grade"`)}
+	}
+	if v, ok := sc.mutation.Grade(); ok {
+		if err := student.GradeValidator(v); err != nil {
+			return &ValidationError{Name: "grade", err: fmt.Errorf(`ent: validator failed for field "Student.grade": %w`, err)}
+		}
+	}
+	if _, ok := sc.mutation.ManavisCode(); !ok {
+		return &ValidationError{Name: "manavis_code", err: errors.New(`ent: missing required field "Student.manavis_code"`)}
+	}
+	if v, ok := sc.mutation.ManavisCode(); ok {
+		if err := student.ManavisCodeValidator(v); err != nil {
+			return &ValidationError{Name: "manavis_code", err: fmt.Errorf(`ent: validator failed for field "Student.manavis_code": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -175,6 +263,54 @@ func (sc *StudentCreate) createSpec() (*Student, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.DeletedAt(); ok {
 		_spec.SetField(student.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = value
+	}
+	if value, ok := sc.mutation.LastName(); ok {
+		_spec.SetField(student.FieldLastName, field.TypeString, value)
+		_node.LastName = value
+	}
+	if value, ok := sc.mutation.FirstName(); ok {
+		_spec.SetField(student.FieldFirstName, field.TypeString, value)
+		_node.FirstName = value
+	}
+	if value, ok := sc.mutation.Grade(); ok {
+		_spec.SetField(student.FieldGrade, field.TypeInt16, value)
+		_node.Grade = value
+	}
+	if value, ok := sc.mutation.ManavisCode(); ok {
+		_spec.SetField(student.FieldManavisCode, field.TypeString, value)
+		_node.ManavisCode = value
+	}
+	if nodes := sc.mutation.CheckinsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckinsTable,
+			Columns: []string{student.CheckinsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckin.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.CheckoutsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckoutsTable,
+			Columns: []string{student.CheckoutsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckout.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

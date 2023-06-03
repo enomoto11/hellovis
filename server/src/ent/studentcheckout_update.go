@@ -7,12 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"hellovis/ent/predicate"
+	"hellovis/ent/student"
 	"hellovis/ent/studentcheckout"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // StudentCheckoutUpdate is the builder for updating StudentCheckout entities.
@@ -40,9 +42,26 @@ func (scu *StudentCheckoutUpdate) SetDeletedAt(t time.Time) *StudentCheckoutUpda
 	return scu
 }
 
+// SetStudentID sets the "student_id" field.
+func (scu *StudentCheckoutUpdate) SetStudentID(u uuid.UUID) *StudentCheckoutUpdate {
+	scu.mutation.SetStudentID(u)
+	return scu
+}
+
+// SetStudent sets the "student" edge to the Student entity.
+func (scu *StudentCheckoutUpdate) SetStudent(s *Student) *StudentCheckoutUpdate {
+	return scu.SetStudentID(s.ID)
+}
+
 // Mutation returns the StudentCheckoutMutation object of the builder.
 func (scu *StudentCheckoutUpdate) Mutation() *StudentCheckoutMutation {
 	return scu.mutation
+}
+
+// ClearStudent clears the "student" edge to the Student entity.
+func (scu *StudentCheckoutUpdate) ClearStudent() *StudentCheckoutUpdate {
+	scu.mutation.ClearStudent()
+	return scu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -85,7 +104,18 @@ func (scu *StudentCheckoutUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (scu *StudentCheckoutUpdate) check() error {
+	if _, ok := scu.mutation.StudentID(); scu.mutation.StudentCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "StudentCheckout.student"`)
+	}
+	return nil
+}
+
 func (scu *StudentCheckoutUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := scu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(studentcheckout.Table, studentcheckout.Columns, sqlgraph.NewFieldSpec(studentcheckout.FieldID, field.TypeUUID))
 	if ps := scu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -99,6 +129,35 @@ func (scu *StudentCheckoutUpdate) sqlSave(ctx context.Context) (n int, err error
 	}
 	if value, ok := scu.mutation.DeletedAt(); ok {
 		_spec.SetField(studentcheckout.FieldDeletedAt, field.TypeTime, value)
+	}
+	if scu.mutation.StudentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   studentcheckout.StudentTable,
+			Columns: []string{studentcheckout.StudentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := scu.mutation.StudentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   studentcheckout.StudentTable,
+			Columns: []string{studentcheckout.StudentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, scu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -132,9 +191,26 @@ func (scuo *StudentCheckoutUpdateOne) SetDeletedAt(t time.Time) *StudentCheckout
 	return scuo
 }
 
+// SetStudentID sets the "student_id" field.
+func (scuo *StudentCheckoutUpdateOne) SetStudentID(u uuid.UUID) *StudentCheckoutUpdateOne {
+	scuo.mutation.SetStudentID(u)
+	return scuo
+}
+
+// SetStudent sets the "student" edge to the Student entity.
+func (scuo *StudentCheckoutUpdateOne) SetStudent(s *Student) *StudentCheckoutUpdateOne {
+	return scuo.SetStudentID(s.ID)
+}
+
 // Mutation returns the StudentCheckoutMutation object of the builder.
 func (scuo *StudentCheckoutUpdateOne) Mutation() *StudentCheckoutMutation {
 	return scuo.mutation
+}
+
+// ClearStudent clears the "student" edge to the Student entity.
+func (scuo *StudentCheckoutUpdateOne) ClearStudent() *StudentCheckoutUpdateOne {
+	scuo.mutation.ClearStudent()
+	return scuo
 }
 
 // Where appends a list predicates to the StudentCheckoutUpdate builder.
@@ -190,7 +266,18 @@ func (scuo *StudentCheckoutUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (scuo *StudentCheckoutUpdateOne) check() error {
+	if _, ok := scuo.mutation.StudentID(); scuo.mutation.StudentCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "StudentCheckout.student"`)
+	}
+	return nil
+}
+
 func (scuo *StudentCheckoutUpdateOne) sqlSave(ctx context.Context) (_node *StudentCheckout, err error) {
+	if err := scuo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(studentcheckout.Table, studentcheckout.Columns, sqlgraph.NewFieldSpec(studentcheckout.FieldID, field.TypeUUID))
 	id, ok := scuo.mutation.ID()
 	if !ok {
@@ -221,6 +308,35 @@ func (scuo *StudentCheckoutUpdateOne) sqlSave(ctx context.Context) (_node *Stude
 	}
 	if value, ok := scuo.mutation.DeletedAt(); ok {
 		_spec.SetField(studentcheckout.FieldDeletedAt, field.TypeTime, value)
+	}
+	if scuo.mutation.StudentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   studentcheckout.StudentTable,
+			Columns: []string{studentcheckout.StudentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := scuo.mutation.StudentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   studentcheckout.StudentTable,
+			Columns: []string{studentcheckout.StudentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &StudentCheckout{config: scuo.config}
 	_spec.Assign = _node.assignValues

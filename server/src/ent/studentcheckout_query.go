@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"hellovis/ent/predicate"
+	"hellovis/ent/student"
 	"hellovis/ent/studentcheckout"
 	"math"
 
@@ -18,10 +19,11 @@ import (
 // StudentCheckoutQuery is the builder for querying StudentCheckout entities.
 type StudentCheckoutQuery struct {
 	config
-	ctx        *QueryContext
-	order      []studentcheckout.OrderOption
-	inters     []Interceptor
-	predicates []predicate.StudentCheckout
+	ctx         *QueryContext
+	order       []studentcheckout.OrderOption
+	inters      []Interceptor
+	predicates  []predicate.StudentCheckout
+	withStudent *StudentQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -56,6 +58,28 @@ func (scq *StudentCheckoutQuery) Unique(unique bool) *StudentCheckoutQuery {
 func (scq *StudentCheckoutQuery) Order(o ...studentcheckout.OrderOption) *StudentCheckoutQuery {
 	scq.order = append(scq.order, o...)
 	return scq
+}
+
+// QueryStudent chains the current query on the "student" edge.
+func (scq *StudentCheckoutQuery) QueryStudent() *StudentQuery {
+	query := (&StudentClient{config: scq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := scq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := scq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(studentcheckout.Table, studentcheckout.FieldID, selector),
+			sqlgraph.To(student.Table, student.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, studentcheckout.StudentTable, studentcheckout.StudentColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(scq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first StudentCheckout entity from the query.
@@ -245,15 +269,27 @@ func (scq *StudentCheckoutQuery) Clone() *StudentCheckoutQuery {
 		return nil
 	}
 	return &StudentCheckoutQuery{
-		config:     scq.config,
-		ctx:        scq.ctx.Clone(),
-		order:      append([]studentcheckout.OrderOption{}, scq.order...),
-		inters:     append([]Interceptor{}, scq.inters...),
-		predicates: append([]predicate.StudentCheckout{}, scq.predicates...),
+		config:      scq.config,
+		ctx:         scq.ctx.Clone(),
+		order:       append([]studentcheckout.OrderOption{}, scq.order...),
+		inters:      append([]Interceptor{}, scq.inters...),
+		predicates:  append([]predicate.StudentCheckout{}, scq.predicates...),
+		withStudent: scq.withStudent.Clone(),
 		// clone intermediate query.
 		sql:  scq.sql.Clone(),
 		path: scq.path,
 	}
+}
+
+// WithStudent tells the query-builder to eager-load the nodes that are connected to
+// the "student" edge. The optional arguments are used to configure the query builder of the edge.
+func (scq *StudentCheckoutQuery) WithStudent(opts ...func(*StudentQuery)) *StudentCheckoutQuery {
+	query := (&StudentClient{config: scq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	scq.withStudent = query
+	return scq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -332,8 +368,11 @@ func (scq *StudentCheckoutQuery) prepareQuery(ctx context.Context) error {
 
 func (scq *StudentCheckoutQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*StudentCheckout, error) {
 	var (
-		nodes = []*StudentCheckout{}
-		_spec = scq.querySpec()
+		nodes       = []*StudentCheckout{}
+		_spec       = scq.querySpec()
+		loadedTypes = [1]bool{
+			scq.withStudent != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*StudentCheckout).scanValues(nil, columns)
@@ -341,6 +380,7 @@ func (scq *StudentCheckoutQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &StudentCheckout{config: scq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -352,7 +392,43 @@ func (scq *StudentCheckoutQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := scq.withStudent; query != nil {
+		if err := scq.loadStudent(ctx, query, nodes, nil,
+			func(n *StudentCheckout, e *Student) { n.Edges.Student = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (scq *StudentCheckoutQuery) loadStudent(ctx context.Context, query *StudentQuery, nodes []*StudentCheckout, init func(*StudentCheckout), assign func(*StudentCheckout, *Student)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*StudentCheckout)
+	for i := range nodes {
+		fk := nodes[i].StudentID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(student.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "student_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (scq *StudentCheckoutQuery) sqlCount(ctx context.Context) (int, error) {
@@ -379,6 +455,9 @@ func (scq *StudentCheckoutQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != studentcheckout.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if scq.withStudent != nil {
+			_spec.Node.AddColumnOnce(studentcheckout.FieldStudentID)
 		}
 	}
 	if ps := scq.predicates; len(ps) > 0 {

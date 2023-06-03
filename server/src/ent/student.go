@@ -23,8 +23,48 @@ type Student struct {
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt    time.Time `json:"deleted_at,omitempty"`
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
+	// LastName holds the value of the "last_name" field.
+	LastName string `json:"last_name,omitempty"`
+	// FirstName holds the value of the "first_name" field.
+	FirstName string `json:"first_name,omitempty"`
+	// Grade holds the value of the "grade" field.
+	Grade int16 `json:"grade,omitempty"`
+	// ManavisCode holds the value of the "manavis_code" field.
+	ManavisCode string `json:"manavis_code,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the StudentQuery when eager-loading is set.
+	Edges        StudentEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// StudentEdges holds the relations/edges for other nodes in the graph.
+type StudentEdges struct {
+	// Checkins holds the value of the checkins edge.
+	Checkins []*StudentCheckin `json:"checkins,omitempty"`
+	// Checkouts holds the value of the checkouts edge.
+	Checkouts []*StudentCheckout `json:"checkouts,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [2]bool
+}
+
+// CheckinsOrErr returns the Checkins value or an error if the edge
+// was not loaded in eager-loading.
+func (e StudentEdges) CheckinsOrErr() ([]*StudentCheckin, error) {
+	if e.loadedTypes[0] {
+		return e.Checkins, nil
+	}
+	return nil, &NotLoadedError{edge: "checkins"}
+}
+
+// CheckoutsOrErr returns the Checkouts value or an error if the edge
+// was not loaded in eager-loading.
+func (e StudentEdges) CheckoutsOrErr() ([]*StudentCheckout, error) {
+	if e.loadedTypes[1] {
+		return e.Checkouts, nil
+	}
+	return nil, &NotLoadedError{edge: "checkouts"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -32,6 +72,10 @@ func (*Student) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case student.FieldGrade:
+			values[i] = new(sql.NullInt64)
+		case student.FieldLastName, student.FieldFirstName, student.FieldManavisCode:
+			values[i] = new(sql.NullString)
 		case student.FieldCreatedAt, student.FieldUpdatedAt, student.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		case student.FieldID:
@@ -75,6 +119,30 @@ func (s *Student) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.DeletedAt = value.Time
 			}
+		case student.FieldLastName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field last_name", values[i])
+			} else if value.Valid {
+				s.LastName = value.String
+			}
+		case student.FieldFirstName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field first_name", values[i])
+			} else if value.Valid {
+				s.FirstName = value.String
+			}
+		case student.FieldGrade:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field grade", values[i])
+			} else if value.Valid {
+				s.Grade = int16(value.Int64)
+			}
+		case student.FieldManavisCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field manavis_code", values[i])
+			} else if value.Valid {
+				s.ManavisCode = value.String
+			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
 		}
@@ -86,6 +154,16 @@ func (s *Student) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (s *Student) Value(name string) (ent.Value, error) {
 	return s.selectValues.Get(name)
+}
+
+// QueryCheckins queries the "checkins" edge of the Student entity.
+func (s *Student) QueryCheckins() *StudentCheckinQuery {
+	return NewStudentClient(s.config).QueryCheckins(s)
+}
+
+// QueryCheckouts queries the "checkouts" edge of the Student entity.
+func (s *Student) QueryCheckouts() *StudentCheckoutQuery {
+	return NewStudentClient(s.config).QueryCheckouts(s)
 }
 
 // Update returns a builder for updating this Student.
@@ -119,6 +197,18 @@ func (s *Student) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted_at=")
 	builder.WriteString(s.DeletedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("last_name=")
+	builder.WriteString(s.LastName)
+	builder.WriteString(", ")
+	builder.WriteString("first_name=")
+	builder.WriteString(s.FirstName)
+	builder.WriteString(", ")
+	builder.WriteString("grade=")
+	builder.WriteString(fmt.Sprintf("%v", s.Grade))
+	builder.WriteString(", ")
+	builder.WriteString("manavis_code=")
+	builder.WriteString(s.ManavisCode)
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -8,11 +8,14 @@ import (
 	"fmt"
 	"hellovis/ent/predicate"
 	"hellovis/ent/student"
+	"hellovis/ent/studentcheckin"
+	"hellovis/ent/studentcheckout"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // StudentUpdate is the builder for updating Student entities.
@@ -40,9 +43,112 @@ func (su *StudentUpdate) SetDeletedAt(t time.Time) *StudentUpdate {
 	return su
 }
 
+// SetLastName sets the "last_name" field.
+func (su *StudentUpdate) SetLastName(s string) *StudentUpdate {
+	su.mutation.SetLastName(s)
+	return su
+}
+
+// SetFirstName sets the "first_name" field.
+func (su *StudentUpdate) SetFirstName(s string) *StudentUpdate {
+	su.mutation.SetFirstName(s)
+	return su
+}
+
+// SetGrade sets the "grade" field.
+func (su *StudentUpdate) SetGrade(i int16) *StudentUpdate {
+	su.mutation.ResetGrade()
+	su.mutation.SetGrade(i)
+	return su
+}
+
+// AddGrade adds i to the "grade" field.
+func (su *StudentUpdate) AddGrade(i int16) *StudentUpdate {
+	su.mutation.AddGrade(i)
+	return su
+}
+
+// SetManavisCode sets the "manavis_code" field.
+func (su *StudentUpdate) SetManavisCode(s string) *StudentUpdate {
+	su.mutation.SetManavisCode(s)
+	return su
+}
+
+// AddCheckinIDs adds the "checkins" edge to the StudentCheckin entity by IDs.
+func (su *StudentUpdate) AddCheckinIDs(ids ...uuid.UUID) *StudentUpdate {
+	su.mutation.AddCheckinIDs(ids...)
+	return su
+}
+
+// AddCheckins adds the "checkins" edges to the StudentCheckin entity.
+func (su *StudentUpdate) AddCheckins(s ...*StudentCheckin) *StudentUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.AddCheckinIDs(ids...)
+}
+
+// AddCheckoutIDs adds the "checkouts" edge to the StudentCheckout entity by IDs.
+func (su *StudentUpdate) AddCheckoutIDs(ids ...uuid.UUID) *StudentUpdate {
+	su.mutation.AddCheckoutIDs(ids...)
+	return su
+}
+
+// AddCheckouts adds the "checkouts" edges to the StudentCheckout entity.
+func (su *StudentUpdate) AddCheckouts(s ...*StudentCheckout) *StudentUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.AddCheckoutIDs(ids...)
+}
+
 // Mutation returns the StudentMutation object of the builder.
 func (su *StudentUpdate) Mutation() *StudentMutation {
 	return su.mutation
+}
+
+// ClearCheckins clears all "checkins" edges to the StudentCheckin entity.
+func (su *StudentUpdate) ClearCheckins() *StudentUpdate {
+	su.mutation.ClearCheckins()
+	return su
+}
+
+// RemoveCheckinIDs removes the "checkins" edge to StudentCheckin entities by IDs.
+func (su *StudentUpdate) RemoveCheckinIDs(ids ...uuid.UUID) *StudentUpdate {
+	su.mutation.RemoveCheckinIDs(ids...)
+	return su
+}
+
+// RemoveCheckins removes "checkins" edges to StudentCheckin entities.
+func (su *StudentUpdate) RemoveCheckins(s ...*StudentCheckin) *StudentUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.RemoveCheckinIDs(ids...)
+}
+
+// ClearCheckouts clears all "checkouts" edges to the StudentCheckout entity.
+func (su *StudentUpdate) ClearCheckouts() *StudentUpdate {
+	su.mutation.ClearCheckouts()
+	return su
+}
+
+// RemoveCheckoutIDs removes the "checkouts" edge to StudentCheckout entities by IDs.
+func (su *StudentUpdate) RemoveCheckoutIDs(ids ...uuid.UUID) *StudentUpdate {
+	su.mutation.RemoveCheckoutIDs(ids...)
+	return su
+}
+
+// RemoveCheckouts removes "checkouts" edges to StudentCheckout entities.
+func (su *StudentUpdate) RemoveCheckouts(s ...*StudentCheckout) *StudentUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.RemoveCheckoutIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -85,7 +191,35 @@ func (su *StudentUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (su *StudentUpdate) check() error {
+	if v, ok := su.mutation.LastName(); ok {
+		if err := student.LastNameValidator(v); err != nil {
+			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "Student.last_name": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.FirstName(); ok {
+		if err := student.FirstNameValidator(v); err != nil {
+			return &ValidationError{Name: "first_name", err: fmt.Errorf(`ent: validator failed for field "Student.first_name": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.Grade(); ok {
+		if err := student.GradeValidator(v); err != nil {
+			return &ValidationError{Name: "grade", err: fmt.Errorf(`ent: validator failed for field "Student.grade": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.ManavisCode(); ok {
+		if err := student.ManavisCodeValidator(v); err != nil {
+			return &ValidationError{Name: "manavis_code", err: fmt.Errorf(`ent: validator failed for field "Student.manavis_code": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := su.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(student.Table, student.Columns, sqlgraph.NewFieldSpec(student.FieldID, field.TypeUUID))
 	if ps := su.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -99,6 +233,111 @@ func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.DeletedAt(); ok {
 		_spec.SetField(student.FieldDeletedAt, field.TypeTime, value)
+	}
+	if value, ok := su.mutation.LastName(); ok {
+		_spec.SetField(student.FieldLastName, field.TypeString, value)
+	}
+	if value, ok := su.mutation.FirstName(); ok {
+		_spec.SetField(student.FieldFirstName, field.TypeString, value)
+	}
+	if value, ok := su.mutation.Grade(); ok {
+		_spec.SetField(student.FieldGrade, field.TypeInt16, value)
+	}
+	if value, ok := su.mutation.AddedGrade(); ok {
+		_spec.AddField(student.FieldGrade, field.TypeInt16, value)
+	}
+	if value, ok := su.mutation.ManavisCode(); ok {
+		_spec.SetField(student.FieldManavisCode, field.TypeString, value)
+	}
+	if su.mutation.CheckinsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckinsTable,
+			Columns: []string{student.CheckinsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckin.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedCheckinsIDs(); len(nodes) > 0 && !su.mutation.CheckinsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckinsTable,
+			Columns: []string{student.CheckinsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckin.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.CheckinsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckinsTable,
+			Columns: []string{student.CheckinsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckin.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.CheckoutsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckoutsTable,
+			Columns: []string{student.CheckoutsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckout.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedCheckoutsIDs(); len(nodes) > 0 && !su.mutation.CheckoutsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckoutsTable,
+			Columns: []string{student.CheckoutsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckout.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.CheckoutsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckoutsTable,
+			Columns: []string{student.CheckoutsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckout.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -132,9 +371,112 @@ func (suo *StudentUpdateOne) SetDeletedAt(t time.Time) *StudentUpdateOne {
 	return suo
 }
 
+// SetLastName sets the "last_name" field.
+func (suo *StudentUpdateOne) SetLastName(s string) *StudentUpdateOne {
+	suo.mutation.SetLastName(s)
+	return suo
+}
+
+// SetFirstName sets the "first_name" field.
+func (suo *StudentUpdateOne) SetFirstName(s string) *StudentUpdateOne {
+	suo.mutation.SetFirstName(s)
+	return suo
+}
+
+// SetGrade sets the "grade" field.
+func (suo *StudentUpdateOne) SetGrade(i int16) *StudentUpdateOne {
+	suo.mutation.ResetGrade()
+	suo.mutation.SetGrade(i)
+	return suo
+}
+
+// AddGrade adds i to the "grade" field.
+func (suo *StudentUpdateOne) AddGrade(i int16) *StudentUpdateOne {
+	suo.mutation.AddGrade(i)
+	return suo
+}
+
+// SetManavisCode sets the "manavis_code" field.
+func (suo *StudentUpdateOne) SetManavisCode(s string) *StudentUpdateOne {
+	suo.mutation.SetManavisCode(s)
+	return suo
+}
+
+// AddCheckinIDs adds the "checkins" edge to the StudentCheckin entity by IDs.
+func (suo *StudentUpdateOne) AddCheckinIDs(ids ...uuid.UUID) *StudentUpdateOne {
+	suo.mutation.AddCheckinIDs(ids...)
+	return suo
+}
+
+// AddCheckins adds the "checkins" edges to the StudentCheckin entity.
+func (suo *StudentUpdateOne) AddCheckins(s ...*StudentCheckin) *StudentUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.AddCheckinIDs(ids...)
+}
+
+// AddCheckoutIDs adds the "checkouts" edge to the StudentCheckout entity by IDs.
+func (suo *StudentUpdateOne) AddCheckoutIDs(ids ...uuid.UUID) *StudentUpdateOne {
+	suo.mutation.AddCheckoutIDs(ids...)
+	return suo
+}
+
+// AddCheckouts adds the "checkouts" edges to the StudentCheckout entity.
+func (suo *StudentUpdateOne) AddCheckouts(s ...*StudentCheckout) *StudentUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.AddCheckoutIDs(ids...)
+}
+
 // Mutation returns the StudentMutation object of the builder.
 func (suo *StudentUpdateOne) Mutation() *StudentMutation {
 	return suo.mutation
+}
+
+// ClearCheckins clears all "checkins" edges to the StudentCheckin entity.
+func (suo *StudentUpdateOne) ClearCheckins() *StudentUpdateOne {
+	suo.mutation.ClearCheckins()
+	return suo
+}
+
+// RemoveCheckinIDs removes the "checkins" edge to StudentCheckin entities by IDs.
+func (suo *StudentUpdateOne) RemoveCheckinIDs(ids ...uuid.UUID) *StudentUpdateOne {
+	suo.mutation.RemoveCheckinIDs(ids...)
+	return suo
+}
+
+// RemoveCheckins removes "checkins" edges to StudentCheckin entities.
+func (suo *StudentUpdateOne) RemoveCheckins(s ...*StudentCheckin) *StudentUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.RemoveCheckinIDs(ids...)
+}
+
+// ClearCheckouts clears all "checkouts" edges to the StudentCheckout entity.
+func (suo *StudentUpdateOne) ClearCheckouts() *StudentUpdateOne {
+	suo.mutation.ClearCheckouts()
+	return suo
+}
+
+// RemoveCheckoutIDs removes the "checkouts" edge to StudentCheckout entities by IDs.
+func (suo *StudentUpdateOne) RemoveCheckoutIDs(ids ...uuid.UUID) *StudentUpdateOne {
+	suo.mutation.RemoveCheckoutIDs(ids...)
+	return suo
+}
+
+// RemoveCheckouts removes "checkouts" edges to StudentCheckout entities.
+func (suo *StudentUpdateOne) RemoveCheckouts(s ...*StudentCheckout) *StudentUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.RemoveCheckoutIDs(ids...)
 }
 
 // Where appends a list predicates to the StudentUpdate builder.
@@ -190,7 +532,35 @@ func (suo *StudentUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (suo *StudentUpdateOne) check() error {
+	if v, ok := suo.mutation.LastName(); ok {
+		if err := student.LastNameValidator(v); err != nil {
+			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "Student.last_name": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.FirstName(); ok {
+		if err := student.FirstNameValidator(v); err != nil {
+			return &ValidationError{Name: "first_name", err: fmt.Errorf(`ent: validator failed for field "Student.first_name": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.Grade(); ok {
+		if err := student.GradeValidator(v); err != nil {
+			return &ValidationError{Name: "grade", err: fmt.Errorf(`ent: validator failed for field "Student.grade": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.ManavisCode(); ok {
+		if err := student.ManavisCodeValidator(v); err != nil {
+			return &ValidationError{Name: "manavis_code", err: fmt.Errorf(`ent: validator failed for field "Student.manavis_code": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err error) {
+	if err := suo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(student.Table, student.Columns, sqlgraph.NewFieldSpec(student.FieldID, field.TypeUUID))
 	id, ok := suo.mutation.ID()
 	if !ok {
@@ -221,6 +591,111 @@ func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err e
 	}
 	if value, ok := suo.mutation.DeletedAt(); ok {
 		_spec.SetField(student.FieldDeletedAt, field.TypeTime, value)
+	}
+	if value, ok := suo.mutation.LastName(); ok {
+		_spec.SetField(student.FieldLastName, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.FirstName(); ok {
+		_spec.SetField(student.FieldFirstName, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.Grade(); ok {
+		_spec.SetField(student.FieldGrade, field.TypeInt16, value)
+	}
+	if value, ok := suo.mutation.AddedGrade(); ok {
+		_spec.AddField(student.FieldGrade, field.TypeInt16, value)
+	}
+	if value, ok := suo.mutation.ManavisCode(); ok {
+		_spec.SetField(student.FieldManavisCode, field.TypeString, value)
+	}
+	if suo.mutation.CheckinsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckinsTable,
+			Columns: []string{student.CheckinsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckin.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedCheckinsIDs(); len(nodes) > 0 && !suo.mutation.CheckinsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckinsTable,
+			Columns: []string{student.CheckinsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckin.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.CheckinsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckinsTable,
+			Columns: []string{student.CheckinsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckin.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.CheckoutsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckoutsTable,
+			Columns: []string{student.CheckoutsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckout.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedCheckoutsIDs(); len(nodes) > 0 && !suo.mutation.CheckoutsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckoutsTable,
+			Columns: []string{student.CheckoutsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckout.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.CheckoutsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   student.CheckoutsTable,
+			Columns: []string{student.CheckoutsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(studentcheckout.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Student{config: suo.config}
 	_spec.Assign = _node.assignValues

@@ -4,6 +4,7 @@ package ent
 
 import (
 	"fmt"
+	"hellovis/ent/student"
 	"hellovis/ent/studentcheckout"
 	"strings"
 	"time"
@@ -23,8 +24,35 @@ type StudentCheckout struct {
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt    time.Time `json:"deleted_at,omitempty"`
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
+	// StudentID holds the value of the "student_id" field.
+	StudentID uuid.UUID `json:"student_id,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the StudentCheckoutQuery when eager-loading is set.
+	Edges        StudentCheckoutEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// StudentCheckoutEdges holds the relations/edges for other nodes in the graph.
+type StudentCheckoutEdges struct {
+	// Student holds the value of the student edge.
+	Student *Student `json:"student,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// StudentOrErr returns the Student value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e StudentCheckoutEdges) StudentOrErr() (*Student, error) {
+	if e.loadedTypes[0] {
+		if e.Student == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: student.Label}
+		}
+		return e.Student, nil
+	}
+	return nil, &NotLoadedError{edge: "student"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -34,7 +62,7 @@ func (*StudentCheckout) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case studentcheckout.FieldCreatedAt, studentcheckout.FieldUpdatedAt, studentcheckout.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case studentcheckout.FieldID:
+		case studentcheckout.FieldID, studentcheckout.FieldStudentID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -75,6 +103,12 @@ func (sc *StudentCheckout) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				sc.DeletedAt = value.Time
 			}
+		case studentcheckout.FieldStudentID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field student_id", values[i])
+			} else if value != nil {
+				sc.StudentID = *value
+			}
 		default:
 			sc.selectValues.Set(columns[i], values[i])
 		}
@@ -86,6 +120,11 @@ func (sc *StudentCheckout) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (sc *StudentCheckout) Value(name string) (ent.Value, error) {
 	return sc.selectValues.Get(name)
+}
+
+// QueryStudent queries the "student" edge of the StudentCheckout entity.
+func (sc *StudentCheckout) QueryStudent() *StudentQuery {
+	return NewStudentCheckoutClient(sc.config).QueryStudent(sc)
 }
 
 // Update returns a builder for updating this StudentCheckout.
@@ -119,6 +158,9 @@ func (sc *StudentCheckout) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted_at=")
 	builder.WriteString(sc.DeletedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("student_id=")
+	builder.WriteString(fmt.Sprintf("%v", sc.StudentID))
 	builder.WriteByte(')')
 	return builder.String()
 }

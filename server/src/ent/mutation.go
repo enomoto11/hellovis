@@ -35,16 +35,27 @@ const (
 // StudentMutation represents an operation that mutates the Student nodes in the graph.
 type StudentMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uuid.UUID
-	created_at    *time.Time
-	updated_at    *time.Time
-	deleted_at    *time.Time
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Student, error)
-	predicates    []predicate.Student
+	op               Op
+	typ              string
+	id               *uuid.UUID
+	created_at       *time.Time
+	updated_at       *time.Time
+	deleted_at       *time.Time
+	last_name        *string
+	first_name       *string
+	grade            *int16
+	addgrade         *int16
+	manavis_code     *string
+	clearedFields    map[string]struct{}
+	checkins         map[uuid.UUID]struct{}
+	removedcheckins  map[uuid.UUID]struct{}
+	clearedcheckins  bool
+	checkouts        map[uuid.UUID]struct{}
+	removedcheckouts map[uuid.UUID]struct{}
+	clearedcheckouts bool
+	done             bool
+	oldValue         func(context.Context) (*Student, error)
+	predicates       []predicate.Student
 }
 
 var _ ent.Mutation = (*StudentMutation)(nil)
@@ -259,6 +270,278 @@ func (m *StudentMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 }
 
+// SetLastName sets the "last_name" field.
+func (m *StudentMutation) SetLastName(s string) {
+	m.last_name = &s
+}
+
+// LastName returns the value of the "last_name" field in the mutation.
+func (m *StudentMutation) LastName() (r string, exists bool) {
+	v := m.last_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLastName returns the old "last_name" field's value of the Student entity.
+// If the Student object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StudentMutation) OldLastName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLastName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLastName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLastName: %w", err)
+	}
+	return oldValue.LastName, nil
+}
+
+// ResetLastName resets all changes to the "last_name" field.
+func (m *StudentMutation) ResetLastName() {
+	m.last_name = nil
+}
+
+// SetFirstName sets the "first_name" field.
+func (m *StudentMutation) SetFirstName(s string) {
+	m.first_name = &s
+}
+
+// FirstName returns the value of the "first_name" field in the mutation.
+func (m *StudentMutation) FirstName() (r string, exists bool) {
+	v := m.first_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFirstName returns the old "first_name" field's value of the Student entity.
+// If the Student object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StudentMutation) OldFirstName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFirstName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFirstName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFirstName: %w", err)
+	}
+	return oldValue.FirstName, nil
+}
+
+// ResetFirstName resets all changes to the "first_name" field.
+func (m *StudentMutation) ResetFirstName() {
+	m.first_name = nil
+}
+
+// SetGrade sets the "grade" field.
+func (m *StudentMutation) SetGrade(i int16) {
+	m.grade = &i
+	m.addgrade = nil
+}
+
+// Grade returns the value of the "grade" field in the mutation.
+func (m *StudentMutation) Grade() (r int16, exists bool) {
+	v := m.grade
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGrade returns the old "grade" field's value of the Student entity.
+// If the Student object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StudentMutation) OldGrade(ctx context.Context) (v int16, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGrade is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGrade requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGrade: %w", err)
+	}
+	return oldValue.Grade, nil
+}
+
+// AddGrade adds i to the "grade" field.
+func (m *StudentMutation) AddGrade(i int16) {
+	if m.addgrade != nil {
+		*m.addgrade += i
+	} else {
+		m.addgrade = &i
+	}
+}
+
+// AddedGrade returns the value that was added to the "grade" field in this mutation.
+func (m *StudentMutation) AddedGrade() (r int16, exists bool) {
+	v := m.addgrade
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGrade resets all changes to the "grade" field.
+func (m *StudentMutation) ResetGrade() {
+	m.grade = nil
+	m.addgrade = nil
+}
+
+// SetManavisCode sets the "manavis_code" field.
+func (m *StudentMutation) SetManavisCode(s string) {
+	m.manavis_code = &s
+}
+
+// ManavisCode returns the value of the "manavis_code" field in the mutation.
+func (m *StudentMutation) ManavisCode() (r string, exists bool) {
+	v := m.manavis_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldManavisCode returns the old "manavis_code" field's value of the Student entity.
+// If the Student object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StudentMutation) OldManavisCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldManavisCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldManavisCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldManavisCode: %w", err)
+	}
+	return oldValue.ManavisCode, nil
+}
+
+// ResetManavisCode resets all changes to the "manavis_code" field.
+func (m *StudentMutation) ResetManavisCode() {
+	m.manavis_code = nil
+}
+
+// AddCheckinIDs adds the "checkins" edge to the StudentCheckin entity by ids.
+func (m *StudentMutation) AddCheckinIDs(ids ...uuid.UUID) {
+	if m.checkins == nil {
+		m.checkins = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.checkins[ids[i]] = struct{}{}
+	}
+}
+
+// ClearCheckins clears the "checkins" edge to the StudentCheckin entity.
+func (m *StudentMutation) ClearCheckins() {
+	m.clearedcheckins = true
+}
+
+// CheckinsCleared reports if the "checkins" edge to the StudentCheckin entity was cleared.
+func (m *StudentMutation) CheckinsCleared() bool {
+	return m.clearedcheckins
+}
+
+// RemoveCheckinIDs removes the "checkins" edge to the StudentCheckin entity by IDs.
+func (m *StudentMutation) RemoveCheckinIDs(ids ...uuid.UUID) {
+	if m.removedcheckins == nil {
+		m.removedcheckins = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.checkins, ids[i])
+		m.removedcheckins[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedCheckins returns the removed IDs of the "checkins" edge to the StudentCheckin entity.
+func (m *StudentMutation) RemovedCheckinsIDs() (ids []uuid.UUID) {
+	for id := range m.removedcheckins {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// CheckinsIDs returns the "checkins" edge IDs in the mutation.
+func (m *StudentMutation) CheckinsIDs() (ids []uuid.UUID) {
+	for id := range m.checkins {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetCheckins resets all changes to the "checkins" edge.
+func (m *StudentMutation) ResetCheckins() {
+	m.checkins = nil
+	m.clearedcheckins = false
+	m.removedcheckins = nil
+}
+
+// AddCheckoutIDs adds the "checkouts" edge to the StudentCheckout entity by ids.
+func (m *StudentMutation) AddCheckoutIDs(ids ...uuid.UUID) {
+	if m.checkouts == nil {
+		m.checkouts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.checkouts[ids[i]] = struct{}{}
+	}
+}
+
+// ClearCheckouts clears the "checkouts" edge to the StudentCheckout entity.
+func (m *StudentMutation) ClearCheckouts() {
+	m.clearedcheckouts = true
+}
+
+// CheckoutsCleared reports if the "checkouts" edge to the StudentCheckout entity was cleared.
+func (m *StudentMutation) CheckoutsCleared() bool {
+	return m.clearedcheckouts
+}
+
+// RemoveCheckoutIDs removes the "checkouts" edge to the StudentCheckout entity by IDs.
+func (m *StudentMutation) RemoveCheckoutIDs(ids ...uuid.UUID) {
+	if m.removedcheckouts == nil {
+		m.removedcheckouts = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.checkouts, ids[i])
+		m.removedcheckouts[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedCheckouts returns the removed IDs of the "checkouts" edge to the StudentCheckout entity.
+func (m *StudentMutation) RemovedCheckoutsIDs() (ids []uuid.UUID) {
+	for id := range m.removedcheckouts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// CheckoutsIDs returns the "checkouts" edge IDs in the mutation.
+func (m *StudentMutation) CheckoutsIDs() (ids []uuid.UUID) {
+	for id := range m.checkouts {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetCheckouts resets all changes to the "checkouts" edge.
+func (m *StudentMutation) ResetCheckouts() {
+	m.checkouts = nil
+	m.clearedcheckouts = false
+	m.removedcheckouts = nil
+}
+
 // Where appends a list predicates to the StudentMutation builder.
 func (m *StudentMutation) Where(ps ...predicate.Student) {
 	m.predicates = append(m.predicates, ps...)
@@ -293,7 +576,7 @@ func (m *StudentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StudentMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, student.FieldCreatedAt)
 	}
@@ -302,6 +585,18 @@ func (m *StudentMutation) Fields() []string {
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, student.FieldDeletedAt)
+	}
+	if m.last_name != nil {
+		fields = append(fields, student.FieldLastName)
+	}
+	if m.first_name != nil {
+		fields = append(fields, student.FieldFirstName)
+	}
+	if m.grade != nil {
+		fields = append(fields, student.FieldGrade)
+	}
+	if m.manavis_code != nil {
+		fields = append(fields, student.FieldManavisCode)
 	}
 	return fields
 }
@@ -317,6 +612,14 @@ func (m *StudentMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case student.FieldDeletedAt:
 		return m.DeletedAt()
+	case student.FieldLastName:
+		return m.LastName()
+	case student.FieldFirstName:
+		return m.FirstName()
+	case student.FieldGrade:
+		return m.Grade()
+	case student.FieldManavisCode:
+		return m.ManavisCode()
 	}
 	return nil, false
 }
@@ -332,6 +635,14 @@ func (m *StudentMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldUpdatedAt(ctx)
 	case student.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
+	case student.FieldLastName:
+		return m.OldLastName(ctx)
+	case student.FieldFirstName:
+		return m.OldFirstName(ctx)
+	case student.FieldGrade:
+		return m.OldGrade(ctx)
+	case student.FieldManavisCode:
+		return m.OldManavisCode(ctx)
 	}
 	return nil, fmt.Errorf("unknown Student field %s", name)
 }
@@ -362,6 +673,34 @@ func (m *StudentMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDeletedAt(v)
 		return nil
+	case student.FieldLastName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastName(v)
+		return nil
+	case student.FieldFirstName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFirstName(v)
+		return nil
+	case student.FieldGrade:
+		v, ok := value.(int16)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGrade(v)
+		return nil
+	case student.FieldManavisCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetManavisCode(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Student field %s", name)
 }
@@ -369,13 +708,21 @@ func (m *StudentMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *StudentMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addgrade != nil {
+		fields = append(fields, student.FieldGrade)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *StudentMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case student.FieldGrade:
+		return m.AddedGrade()
+	}
 	return nil, false
 }
 
@@ -384,6 +731,13 @@ func (m *StudentMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *StudentMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case student.FieldGrade:
+		v, ok := value.(int16)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGrade(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Student numeric field %s", name)
 }
@@ -420,71 +774,147 @@ func (m *StudentMutation) ResetField(name string) error {
 	case student.FieldDeletedAt:
 		m.ResetDeletedAt()
 		return nil
+	case student.FieldLastName:
+		m.ResetLastName()
+		return nil
+	case student.FieldFirstName:
+		m.ResetFirstName()
+		return nil
+	case student.FieldGrade:
+		m.ResetGrade()
+		return nil
+	case student.FieldManavisCode:
+		m.ResetManavisCode()
+		return nil
 	}
 	return fmt.Errorf("unknown Student field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *StudentMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.checkins != nil {
+		edges = append(edges, student.EdgeCheckins)
+	}
+	if m.checkouts != nil {
+		edges = append(edges, student.EdgeCheckouts)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *StudentMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case student.EdgeCheckins:
+		ids := make([]ent.Value, 0, len(m.checkins))
+		for id := range m.checkins {
+			ids = append(ids, id)
+		}
+		return ids
+	case student.EdgeCheckouts:
+		ids := make([]ent.Value, 0, len(m.checkouts))
+		for id := range m.checkouts {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *StudentMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.removedcheckins != nil {
+		edges = append(edges, student.EdgeCheckins)
+	}
+	if m.removedcheckouts != nil {
+		edges = append(edges, student.EdgeCheckouts)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *StudentMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case student.EdgeCheckins:
+		ids := make([]ent.Value, 0, len(m.removedcheckins))
+		for id := range m.removedcheckins {
+			ids = append(ids, id)
+		}
+		return ids
+	case student.EdgeCheckouts:
+		ids := make([]ent.Value, 0, len(m.removedcheckouts))
+		for id := range m.removedcheckouts {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *StudentMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.clearedcheckins {
+		edges = append(edges, student.EdgeCheckins)
+	}
+	if m.clearedcheckouts {
+		edges = append(edges, student.EdgeCheckouts)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *StudentMutation) EdgeCleared(name string) bool {
+	switch name {
+	case student.EdgeCheckins:
+		return m.clearedcheckins
+	case student.EdgeCheckouts:
+		return m.clearedcheckouts
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *StudentMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Student unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *StudentMutation) ResetEdge(name string) error {
+	switch name {
+	case student.EdgeCheckins:
+		m.ResetCheckins()
+		return nil
+	case student.EdgeCheckouts:
+		m.ResetCheckouts()
+		return nil
+	}
 	return fmt.Errorf("unknown Student edge %s", name)
 }
 
 // StudentCheckinMutation represents an operation that mutates the StudentCheckin nodes in the graph.
 type StudentCheckinMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uuid.UUID
-	created_at    *time.Time
-	updated_at    *time.Time
-	deleted_at    *time.Time
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*StudentCheckin, error)
-	predicates    []predicate.StudentCheckin
+	op             Op
+	typ            string
+	id             *uuid.UUID
+	created_at     *time.Time
+	updated_at     *time.Time
+	deleted_at     *time.Time
+	clearedFields  map[string]struct{}
+	student        *uuid.UUID
+	clearedstudent bool
+	done           bool
+	oldValue       func(context.Context) (*StudentCheckin, error)
+	predicates     []predicate.StudentCheckin
 }
 
 var _ ent.Mutation = (*StudentCheckinMutation)(nil)
@@ -699,6 +1129,68 @@ func (m *StudentCheckinMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 }
 
+// SetStudentID sets the "student_id" field.
+func (m *StudentCheckinMutation) SetStudentID(u uuid.UUID) {
+	m.student = &u
+}
+
+// StudentID returns the value of the "student_id" field in the mutation.
+func (m *StudentCheckinMutation) StudentID() (r uuid.UUID, exists bool) {
+	v := m.student
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStudentID returns the old "student_id" field's value of the StudentCheckin entity.
+// If the StudentCheckin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StudentCheckinMutation) OldStudentID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStudentID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStudentID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStudentID: %w", err)
+	}
+	return oldValue.StudentID, nil
+}
+
+// ResetStudentID resets all changes to the "student_id" field.
+func (m *StudentCheckinMutation) ResetStudentID() {
+	m.student = nil
+}
+
+// ClearStudent clears the "student" edge to the Student entity.
+func (m *StudentCheckinMutation) ClearStudent() {
+	m.clearedstudent = true
+}
+
+// StudentCleared reports if the "student" edge to the Student entity was cleared.
+func (m *StudentCheckinMutation) StudentCleared() bool {
+	return m.clearedstudent
+}
+
+// StudentIDs returns the "student" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// StudentID instead. It exists only for internal usage by the builders.
+func (m *StudentCheckinMutation) StudentIDs() (ids []uuid.UUID) {
+	if id := m.student; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetStudent resets all changes to the "student" edge.
+func (m *StudentCheckinMutation) ResetStudent() {
+	m.student = nil
+	m.clearedstudent = false
+}
+
 // Where appends a list predicates to the StudentCheckinMutation builder.
 func (m *StudentCheckinMutation) Where(ps ...predicate.StudentCheckin) {
 	m.predicates = append(m.predicates, ps...)
@@ -733,7 +1225,7 @@ func (m *StudentCheckinMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StudentCheckinMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.created_at != nil {
 		fields = append(fields, studentcheckin.FieldCreatedAt)
 	}
@@ -742,6 +1234,9 @@ func (m *StudentCheckinMutation) Fields() []string {
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, studentcheckin.FieldDeletedAt)
+	}
+	if m.student != nil {
+		fields = append(fields, studentcheckin.FieldStudentID)
 	}
 	return fields
 }
@@ -757,6 +1252,8 @@ func (m *StudentCheckinMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case studentcheckin.FieldDeletedAt:
 		return m.DeletedAt()
+	case studentcheckin.FieldStudentID:
+		return m.StudentID()
 	}
 	return nil, false
 }
@@ -772,6 +1269,8 @@ func (m *StudentCheckinMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldUpdatedAt(ctx)
 	case studentcheckin.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
+	case studentcheckin.FieldStudentID:
+		return m.OldStudentID(ctx)
 	}
 	return nil, fmt.Errorf("unknown StudentCheckin field %s", name)
 }
@@ -801,6 +1300,13 @@ func (m *StudentCheckinMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
+		return nil
+	case studentcheckin.FieldStudentID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStudentID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown StudentCheckin field %s", name)
@@ -860,25 +1366,37 @@ func (m *StudentCheckinMutation) ResetField(name string) error {
 	case studentcheckin.FieldDeletedAt:
 		m.ResetDeletedAt()
 		return nil
+	case studentcheckin.FieldStudentID:
+		m.ResetStudentID()
+		return nil
 	}
 	return fmt.Errorf("unknown StudentCheckin field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *StudentCheckinMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.student != nil {
+		edges = append(edges, studentcheckin.EdgeStudent)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *StudentCheckinMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case studentcheckin.EdgeStudent:
+		if id := m.student; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *StudentCheckinMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
@@ -890,41 +1408,60 @@ func (m *StudentCheckinMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *StudentCheckinMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedstudent {
+		edges = append(edges, studentcheckin.EdgeStudent)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *StudentCheckinMutation) EdgeCleared(name string) bool {
+	switch name {
+	case studentcheckin.EdgeStudent:
+		return m.clearedstudent
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *StudentCheckinMutation) ClearEdge(name string) error {
+	switch name {
+	case studentcheckin.EdgeStudent:
+		m.ClearStudent()
+		return nil
+	}
 	return fmt.Errorf("unknown StudentCheckin unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *StudentCheckinMutation) ResetEdge(name string) error {
+	switch name {
+	case studentcheckin.EdgeStudent:
+		m.ResetStudent()
+		return nil
+	}
 	return fmt.Errorf("unknown StudentCheckin edge %s", name)
 }
 
 // StudentCheckoutMutation represents an operation that mutates the StudentCheckout nodes in the graph.
 type StudentCheckoutMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uuid.UUID
-	created_at    *time.Time
-	updated_at    *time.Time
-	deleted_at    *time.Time
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*StudentCheckout, error)
-	predicates    []predicate.StudentCheckout
+	op             Op
+	typ            string
+	id             *uuid.UUID
+	created_at     *time.Time
+	updated_at     *time.Time
+	deleted_at     *time.Time
+	clearedFields  map[string]struct{}
+	student        *uuid.UUID
+	clearedstudent bool
+	done           bool
+	oldValue       func(context.Context) (*StudentCheckout, error)
+	predicates     []predicate.StudentCheckout
 }
 
 var _ ent.Mutation = (*StudentCheckoutMutation)(nil)
@@ -1139,6 +1676,68 @@ func (m *StudentCheckoutMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 }
 
+// SetStudentID sets the "student_id" field.
+func (m *StudentCheckoutMutation) SetStudentID(u uuid.UUID) {
+	m.student = &u
+}
+
+// StudentID returns the value of the "student_id" field in the mutation.
+func (m *StudentCheckoutMutation) StudentID() (r uuid.UUID, exists bool) {
+	v := m.student
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStudentID returns the old "student_id" field's value of the StudentCheckout entity.
+// If the StudentCheckout object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StudentCheckoutMutation) OldStudentID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStudentID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStudentID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStudentID: %w", err)
+	}
+	return oldValue.StudentID, nil
+}
+
+// ResetStudentID resets all changes to the "student_id" field.
+func (m *StudentCheckoutMutation) ResetStudentID() {
+	m.student = nil
+}
+
+// ClearStudent clears the "student" edge to the Student entity.
+func (m *StudentCheckoutMutation) ClearStudent() {
+	m.clearedstudent = true
+}
+
+// StudentCleared reports if the "student" edge to the Student entity was cleared.
+func (m *StudentCheckoutMutation) StudentCleared() bool {
+	return m.clearedstudent
+}
+
+// StudentIDs returns the "student" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// StudentID instead. It exists only for internal usage by the builders.
+func (m *StudentCheckoutMutation) StudentIDs() (ids []uuid.UUID) {
+	if id := m.student; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetStudent resets all changes to the "student" edge.
+func (m *StudentCheckoutMutation) ResetStudent() {
+	m.student = nil
+	m.clearedstudent = false
+}
+
 // Where appends a list predicates to the StudentCheckoutMutation builder.
 func (m *StudentCheckoutMutation) Where(ps ...predicate.StudentCheckout) {
 	m.predicates = append(m.predicates, ps...)
@@ -1173,7 +1772,7 @@ func (m *StudentCheckoutMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StudentCheckoutMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.created_at != nil {
 		fields = append(fields, studentcheckout.FieldCreatedAt)
 	}
@@ -1182,6 +1781,9 @@ func (m *StudentCheckoutMutation) Fields() []string {
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, studentcheckout.FieldDeletedAt)
+	}
+	if m.student != nil {
+		fields = append(fields, studentcheckout.FieldStudentID)
 	}
 	return fields
 }
@@ -1197,6 +1799,8 @@ func (m *StudentCheckoutMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case studentcheckout.FieldDeletedAt:
 		return m.DeletedAt()
+	case studentcheckout.FieldStudentID:
+		return m.StudentID()
 	}
 	return nil, false
 }
@@ -1212,6 +1816,8 @@ func (m *StudentCheckoutMutation) OldField(ctx context.Context, name string) (en
 		return m.OldUpdatedAt(ctx)
 	case studentcheckout.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
+	case studentcheckout.FieldStudentID:
+		return m.OldStudentID(ctx)
 	}
 	return nil, fmt.Errorf("unknown StudentCheckout field %s", name)
 }
@@ -1241,6 +1847,13 @@ func (m *StudentCheckoutMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
+		return nil
+	case studentcheckout.FieldStudentID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStudentID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown StudentCheckout field %s", name)
@@ -1300,25 +1913,37 @@ func (m *StudentCheckoutMutation) ResetField(name string) error {
 	case studentcheckout.FieldDeletedAt:
 		m.ResetDeletedAt()
 		return nil
+	case studentcheckout.FieldStudentID:
+		m.ResetStudentID()
+		return nil
 	}
 	return fmt.Errorf("unknown StudentCheckout field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *StudentCheckoutMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.student != nil {
+		edges = append(edges, studentcheckout.EdgeStudent)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *StudentCheckoutMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case studentcheckout.EdgeStudent:
+		if id := m.student; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *StudentCheckoutMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
@@ -1330,24 +1955,41 @@ func (m *StudentCheckoutMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *StudentCheckoutMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedstudent {
+		edges = append(edges, studentcheckout.EdgeStudent)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *StudentCheckoutMutation) EdgeCleared(name string) bool {
+	switch name {
+	case studentcheckout.EdgeStudent:
+		return m.clearedstudent
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *StudentCheckoutMutation) ClearEdge(name string) error {
+	switch name {
+	case studentcheckout.EdgeStudent:
+		m.ClearStudent()
+		return nil
+	}
 	return fmt.Errorf("unknown StudentCheckout unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *StudentCheckoutMutation) ResetEdge(name string) error {
+	switch name {
+	case studentcheckout.EdgeStudent:
+		m.ResetStudent()
+		return nil
+	}
 	return fmt.Errorf("unknown StudentCheckout edge %s", name)
 }

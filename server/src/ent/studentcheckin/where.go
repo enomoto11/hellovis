@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -68,6 +69,11 @@ func UpdatedAt(v time.Time) predicate.StudentCheckin {
 // DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
 func DeletedAt(v time.Time) predicate.StudentCheckin {
 	return predicate.StudentCheckin(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// StudentID applies equality check predicate on the "student_id" field. It's identical to StudentIDEQ.
+func StudentID(v uuid.UUID) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldEQ(FieldStudentID, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -188,6 +194,49 @@ func DeletedAtLT(v time.Time) predicate.StudentCheckin {
 // DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
 func DeletedAtLTE(v time.Time) predicate.StudentCheckin {
 	return predicate.StudentCheckin(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// StudentIDEQ applies the EQ predicate on the "student_id" field.
+func StudentIDEQ(v uuid.UUID) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldEQ(FieldStudentID, v))
+}
+
+// StudentIDNEQ applies the NEQ predicate on the "student_id" field.
+func StudentIDNEQ(v uuid.UUID) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldNEQ(FieldStudentID, v))
+}
+
+// StudentIDIn applies the In predicate on the "student_id" field.
+func StudentIDIn(vs ...uuid.UUID) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldIn(FieldStudentID, vs...))
+}
+
+// StudentIDNotIn applies the NotIn predicate on the "student_id" field.
+func StudentIDNotIn(vs ...uuid.UUID) predicate.StudentCheckin {
+	return predicate.StudentCheckin(sql.FieldNotIn(FieldStudentID, vs...))
+}
+
+// HasStudent applies the HasEdge predicate on the "student" edge.
+func HasStudent() predicate.StudentCheckin {
+	return predicate.StudentCheckin(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, StudentTable, StudentColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStudentWith applies the HasEdge predicate on the "student" edge with a given conditions (other predicates).
+func HasStudentWith(preds ...predicate.Student) predicate.StudentCheckin {
+	return predicate.StudentCheckin(func(s *sql.Selector) {
+		step := newStudentStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

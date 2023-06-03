@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -20,8 +21,19 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldStudentID holds the string denoting the student_id field in the database.
+	FieldStudentID = "student_id"
+	// EdgeStudent holds the string denoting the student edge name in mutations.
+	EdgeStudent = "student"
 	// Table holds the table name of the studentcheckin in the database.
 	Table = "student_checkins"
+	// StudentTable is the table that holds the student relation/edge.
+	StudentTable = "student_checkins"
+	// StudentInverseTable is the table name for the Student entity.
+	// It exists in this package in order to avoid circular dependency with the "student" package.
+	StudentInverseTable = "students"
+	// StudentColumn is the table column denoting the student relation/edge.
+	StudentColumn = "student_id"
 )
 
 // Columns holds all SQL columns for studentcheckin fields.
@@ -30,6 +42,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
+	FieldStudentID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -76,4 +89,23 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByStudentID orders the results by the student_id field.
+func ByStudentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStudentID, opts...).ToFunc()
+}
+
+// ByStudentField orders the results by student field.
+func ByStudentField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStudentStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newStudentStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StudentInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, StudentTable, StudentColumn),
+	)
 }

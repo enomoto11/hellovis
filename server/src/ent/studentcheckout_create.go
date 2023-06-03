@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"hellovis/ent/student"
 	"hellovis/ent/studentcheckout"
 	"time"
 
@@ -55,6 +56,12 @@ func (scc *StudentCheckoutCreate) SetDeletedAt(t time.Time) *StudentCheckoutCrea
 	return scc
 }
 
+// SetStudentID sets the "student_id" field.
+func (scc *StudentCheckoutCreate) SetStudentID(u uuid.UUID) *StudentCheckoutCreate {
+	scc.mutation.SetStudentID(u)
+	return scc
+}
+
 // SetID sets the "id" field.
 func (scc *StudentCheckoutCreate) SetID(u uuid.UUID) *StudentCheckoutCreate {
 	scc.mutation.SetID(u)
@@ -67,6 +74,11 @@ func (scc *StudentCheckoutCreate) SetNillableID(u *uuid.UUID) *StudentCheckoutCr
 		scc.SetID(*u)
 	}
 	return scc
+}
+
+// SetStudent sets the "student" edge to the Student entity.
+func (scc *StudentCheckoutCreate) SetStudent(s *Student) *StudentCheckoutCreate {
+	return scc.SetStudentID(s.ID)
 }
 
 // Mutation returns the StudentCheckoutMutation object of the builder.
@@ -129,6 +141,12 @@ func (scc *StudentCheckoutCreate) check() error {
 	if _, ok := scc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "StudentCheckout.deleted_at"`)}
 	}
+	if _, ok := scc.mutation.StudentID(); !ok {
+		return &ValidationError{Name: "student_id", err: errors.New(`ent: missing required field "StudentCheckout.student_id"`)}
+	}
+	if _, ok := scc.mutation.StudentID(); !ok {
+		return &ValidationError{Name: "student", err: errors.New(`ent: missing required edge "StudentCheckout.student"`)}
+	}
 	return nil
 }
 
@@ -175,6 +193,23 @@ func (scc *StudentCheckoutCreate) createSpec() (*StudentCheckout, *sqlgraph.Crea
 	if value, ok := scc.mutation.DeletedAt(); ok {
 		_spec.SetField(studentcheckout.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = value
+	}
+	if nodes := scc.mutation.StudentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   studentcheckout.StudentTable,
+			Columns: []string{studentcheckout.StudentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.StudentID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

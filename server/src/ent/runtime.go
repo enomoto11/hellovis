@@ -37,6 +37,36 @@ func init() {
 	studentDescDeletedAt := studentMixinFields0[2].Descriptor()
 	// student.UpdateDefaultDeletedAt holds the default value on update for the deleted_at field.
 	student.UpdateDefaultDeletedAt = studentDescDeletedAt.UpdateDefault.(func() time.Time)
+	// studentDescLastName is the schema descriptor for last_name field.
+	studentDescLastName := studentFields[0].Descriptor()
+	// student.LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
+	student.LastNameValidator = studentDescLastName.Validators[0].(func(string) error)
+	// studentDescFirstName is the schema descriptor for first_name field.
+	studentDescFirstName := studentFields[1].Descriptor()
+	// student.FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
+	student.FirstNameValidator = studentDescFirstName.Validators[0].(func(string) error)
+	// studentDescGrade is the schema descriptor for grade field.
+	studentDescGrade := studentFields[2].Descriptor()
+	// student.GradeValidator is a validator for the "grade" field. It is called by the builders before save.
+	student.GradeValidator = func() func(int16) error {
+		validators := studentDescGrade.Validators
+		fns := [...]func(int16) error{
+			validators[0].(func(int16) error),
+			validators[1].(func(int16) error),
+		}
+		return func(grade int16) error {
+			for _, fn := range fns {
+				if err := fn(grade); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// studentDescManavisCode is the schema descriptor for manavis_code field.
+	studentDescManavisCode := studentFields[3].Descriptor()
+	// student.ManavisCodeValidator is a validator for the "manavis_code" field. It is called by the builders before save.
+	student.ManavisCodeValidator = studentDescManavisCode.Validators[0].(func(string) error)
 	// studentDescID is the schema descriptor for id field.
 	studentDescID := studentMixinFields1[0].Descriptor()
 	// student.DefaultID holds the default value on creation for the id field.

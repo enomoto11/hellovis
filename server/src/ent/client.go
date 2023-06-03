@@ -17,6 +17,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -302,6 +303,38 @@ func (c *StudentClient) GetX(ctx context.Context, id uuid.UUID) *Student {
 	return obj
 }
 
+// QueryCheckins queries the checkins edge of a Student.
+func (c *StudentClient) QueryCheckins(s *Student) *StudentCheckinQuery {
+	query := (&StudentCheckinClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(student.Table, student.FieldID, id),
+			sqlgraph.To(studentcheckin.Table, studentcheckin.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, student.CheckinsTable, student.CheckinsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCheckouts queries the checkouts edge of a Student.
+func (c *StudentClient) QueryCheckouts(s *Student) *StudentCheckoutQuery {
+	query := (&StudentCheckoutClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(student.Table, student.FieldID, id),
+			sqlgraph.To(studentcheckout.Table, studentcheckout.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, student.CheckoutsTable, student.CheckoutsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *StudentClient) Hooks() []Hook {
 	return c.hooks.Student
@@ -420,6 +453,22 @@ func (c *StudentCheckinClient) GetX(ctx context.Context, id uuid.UUID) *StudentC
 	return obj
 }
 
+// QueryStudent queries the student edge of a StudentCheckin.
+func (c *StudentCheckinClient) QueryStudent(sc *StudentCheckin) *StudentQuery {
+	query := (&StudentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := sc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(studentcheckin.Table, studentcheckin.FieldID, id),
+			sqlgraph.To(student.Table, student.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, studentcheckin.StudentTable, studentcheckin.StudentColumn),
+		)
+		fromV = sqlgraph.Neighbors(sc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *StudentCheckinClient) Hooks() []Hook {
 	return c.hooks.StudentCheckin
@@ -536,6 +585,22 @@ func (c *StudentCheckoutClient) GetX(ctx context.Context, id uuid.UUID) *Student
 		panic(err)
 	}
 	return obj
+}
+
+// QueryStudent queries the student edge of a StudentCheckout.
+func (c *StudentCheckoutClient) QueryStudent(sc *StudentCheckout) *StudentQuery {
+	query := (&StudentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := sc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(studentcheckout.Table, studentcheckout.FieldID, id),
+			sqlgraph.To(student.Table, student.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, studentcheckout.StudentTable, studentcheckout.StudentColumn),
+		)
+		fromV = sqlgraph.Neighbors(sc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -68,6 +69,26 @@ func UpdatedAt(v time.Time) predicate.Student {
 // DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
 func DeletedAt(v time.Time) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// LastName applies equality check predicate on the "last_name" field. It's identical to LastNameEQ.
+func LastName(v string) predicate.Student {
+	return predicate.Student(sql.FieldEQ(FieldLastName, v))
+}
+
+// FirstName applies equality check predicate on the "first_name" field. It's identical to FirstNameEQ.
+func FirstName(v string) predicate.Student {
+	return predicate.Student(sql.FieldEQ(FieldFirstName, v))
+}
+
+// Grade applies equality check predicate on the "grade" field. It's identical to GradeEQ.
+func Grade(v int16) predicate.Student {
+	return predicate.Student(sql.FieldEQ(FieldGrade, v))
+}
+
+// ManavisCode applies equality check predicate on the "manavis_code" field. It's identical to ManavisCodeEQ.
+func ManavisCode(v string) predicate.Student {
+	return predicate.Student(sql.FieldEQ(FieldManavisCode, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -188,6 +209,287 @@ func DeletedAtLT(v time.Time) predicate.Student {
 // DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
 func DeletedAtLTE(v time.Time) predicate.Student {
 	return predicate.Student(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// LastNameEQ applies the EQ predicate on the "last_name" field.
+func LastNameEQ(v string) predicate.Student {
+	return predicate.Student(sql.FieldEQ(FieldLastName, v))
+}
+
+// LastNameNEQ applies the NEQ predicate on the "last_name" field.
+func LastNameNEQ(v string) predicate.Student {
+	return predicate.Student(sql.FieldNEQ(FieldLastName, v))
+}
+
+// LastNameIn applies the In predicate on the "last_name" field.
+func LastNameIn(vs ...string) predicate.Student {
+	return predicate.Student(sql.FieldIn(FieldLastName, vs...))
+}
+
+// LastNameNotIn applies the NotIn predicate on the "last_name" field.
+func LastNameNotIn(vs ...string) predicate.Student {
+	return predicate.Student(sql.FieldNotIn(FieldLastName, vs...))
+}
+
+// LastNameGT applies the GT predicate on the "last_name" field.
+func LastNameGT(v string) predicate.Student {
+	return predicate.Student(sql.FieldGT(FieldLastName, v))
+}
+
+// LastNameGTE applies the GTE predicate on the "last_name" field.
+func LastNameGTE(v string) predicate.Student {
+	return predicate.Student(sql.FieldGTE(FieldLastName, v))
+}
+
+// LastNameLT applies the LT predicate on the "last_name" field.
+func LastNameLT(v string) predicate.Student {
+	return predicate.Student(sql.FieldLT(FieldLastName, v))
+}
+
+// LastNameLTE applies the LTE predicate on the "last_name" field.
+func LastNameLTE(v string) predicate.Student {
+	return predicate.Student(sql.FieldLTE(FieldLastName, v))
+}
+
+// LastNameContains applies the Contains predicate on the "last_name" field.
+func LastNameContains(v string) predicate.Student {
+	return predicate.Student(sql.FieldContains(FieldLastName, v))
+}
+
+// LastNameHasPrefix applies the HasPrefix predicate on the "last_name" field.
+func LastNameHasPrefix(v string) predicate.Student {
+	return predicate.Student(sql.FieldHasPrefix(FieldLastName, v))
+}
+
+// LastNameHasSuffix applies the HasSuffix predicate on the "last_name" field.
+func LastNameHasSuffix(v string) predicate.Student {
+	return predicate.Student(sql.FieldHasSuffix(FieldLastName, v))
+}
+
+// LastNameEqualFold applies the EqualFold predicate on the "last_name" field.
+func LastNameEqualFold(v string) predicate.Student {
+	return predicate.Student(sql.FieldEqualFold(FieldLastName, v))
+}
+
+// LastNameContainsFold applies the ContainsFold predicate on the "last_name" field.
+func LastNameContainsFold(v string) predicate.Student {
+	return predicate.Student(sql.FieldContainsFold(FieldLastName, v))
+}
+
+// FirstNameEQ applies the EQ predicate on the "first_name" field.
+func FirstNameEQ(v string) predicate.Student {
+	return predicate.Student(sql.FieldEQ(FieldFirstName, v))
+}
+
+// FirstNameNEQ applies the NEQ predicate on the "first_name" field.
+func FirstNameNEQ(v string) predicate.Student {
+	return predicate.Student(sql.FieldNEQ(FieldFirstName, v))
+}
+
+// FirstNameIn applies the In predicate on the "first_name" field.
+func FirstNameIn(vs ...string) predicate.Student {
+	return predicate.Student(sql.FieldIn(FieldFirstName, vs...))
+}
+
+// FirstNameNotIn applies the NotIn predicate on the "first_name" field.
+func FirstNameNotIn(vs ...string) predicate.Student {
+	return predicate.Student(sql.FieldNotIn(FieldFirstName, vs...))
+}
+
+// FirstNameGT applies the GT predicate on the "first_name" field.
+func FirstNameGT(v string) predicate.Student {
+	return predicate.Student(sql.FieldGT(FieldFirstName, v))
+}
+
+// FirstNameGTE applies the GTE predicate on the "first_name" field.
+func FirstNameGTE(v string) predicate.Student {
+	return predicate.Student(sql.FieldGTE(FieldFirstName, v))
+}
+
+// FirstNameLT applies the LT predicate on the "first_name" field.
+func FirstNameLT(v string) predicate.Student {
+	return predicate.Student(sql.FieldLT(FieldFirstName, v))
+}
+
+// FirstNameLTE applies the LTE predicate on the "first_name" field.
+func FirstNameLTE(v string) predicate.Student {
+	return predicate.Student(sql.FieldLTE(FieldFirstName, v))
+}
+
+// FirstNameContains applies the Contains predicate on the "first_name" field.
+func FirstNameContains(v string) predicate.Student {
+	return predicate.Student(sql.FieldContains(FieldFirstName, v))
+}
+
+// FirstNameHasPrefix applies the HasPrefix predicate on the "first_name" field.
+func FirstNameHasPrefix(v string) predicate.Student {
+	return predicate.Student(sql.FieldHasPrefix(FieldFirstName, v))
+}
+
+// FirstNameHasSuffix applies the HasSuffix predicate on the "first_name" field.
+func FirstNameHasSuffix(v string) predicate.Student {
+	return predicate.Student(sql.FieldHasSuffix(FieldFirstName, v))
+}
+
+// FirstNameEqualFold applies the EqualFold predicate on the "first_name" field.
+func FirstNameEqualFold(v string) predicate.Student {
+	return predicate.Student(sql.FieldEqualFold(FieldFirstName, v))
+}
+
+// FirstNameContainsFold applies the ContainsFold predicate on the "first_name" field.
+func FirstNameContainsFold(v string) predicate.Student {
+	return predicate.Student(sql.FieldContainsFold(FieldFirstName, v))
+}
+
+// GradeEQ applies the EQ predicate on the "grade" field.
+func GradeEQ(v int16) predicate.Student {
+	return predicate.Student(sql.FieldEQ(FieldGrade, v))
+}
+
+// GradeNEQ applies the NEQ predicate on the "grade" field.
+func GradeNEQ(v int16) predicate.Student {
+	return predicate.Student(sql.FieldNEQ(FieldGrade, v))
+}
+
+// GradeIn applies the In predicate on the "grade" field.
+func GradeIn(vs ...int16) predicate.Student {
+	return predicate.Student(sql.FieldIn(FieldGrade, vs...))
+}
+
+// GradeNotIn applies the NotIn predicate on the "grade" field.
+func GradeNotIn(vs ...int16) predicate.Student {
+	return predicate.Student(sql.FieldNotIn(FieldGrade, vs...))
+}
+
+// GradeGT applies the GT predicate on the "grade" field.
+func GradeGT(v int16) predicate.Student {
+	return predicate.Student(sql.FieldGT(FieldGrade, v))
+}
+
+// GradeGTE applies the GTE predicate on the "grade" field.
+func GradeGTE(v int16) predicate.Student {
+	return predicate.Student(sql.FieldGTE(FieldGrade, v))
+}
+
+// GradeLT applies the LT predicate on the "grade" field.
+func GradeLT(v int16) predicate.Student {
+	return predicate.Student(sql.FieldLT(FieldGrade, v))
+}
+
+// GradeLTE applies the LTE predicate on the "grade" field.
+func GradeLTE(v int16) predicate.Student {
+	return predicate.Student(sql.FieldLTE(FieldGrade, v))
+}
+
+// ManavisCodeEQ applies the EQ predicate on the "manavis_code" field.
+func ManavisCodeEQ(v string) predicate.Student {
+	return predicate.Student(sql.FieldEQ(FieldManavisCode, v))
+}
+
+// ManavisCodeNEQ applies the NEQ predicate on the "manavis_code" field.
+func ManavisCodeNEQ(v string) predicate.Student {
+	return predicate.Student(sql.FieldNEQ(FieldManavisCode, v))
+}
+
+// ManavisCodeIn applies the In predicate on the "manavis_code" field.
+func ManavisCodeIn(vs ...string) predicate.Student {
+	return predicate.Student(sql.FieldIn(FieldManavisCode, vs...))
+}
+
+// ManavisCodeNotIn applies the NotIn predicate on the "manavis_code" field.
+func ManavisCodeNotIn(vs ...string) predicate.Student {
+	return predicate.Student(sql.FieldNotIn(FieldManavisCode, vs...))
+}
+
+// ManavisCodeGT applies the GT predicate on the "manavis_code" field.
+func ManavisCodeGT(v string) predicate.Student {
+	return predicate.Student(sql.FieldGT(FieldManavisCode, v))
+}
+
+// ManavisCodeGTE applies the GTE predicate on the "manavis_code" field.
+func ManavisCodeGTE(v string) predicate.Student {
+	return predicate.Student(sql.FieldGTE(FieldManavisCode, v))
+}
+
+// ManavisCodeLT applies the LT predicate on the "manavis_code" field.
+func ManavisCodeLT(v string) predicate.Student {
+	return predicate.Student(sql.FieldLT(FieldManavisCode, v))
+}
+
+// ManavisCodeLTE applies the LTE predicate on the "manavis_code" field.
+func ManavisCodeLTE(v string) predicate.Student {
+	return predicate.Student(sql.FieldLTE(FieldManavisCode, v))
+}
+
+// ManavisCodeContains applies the Contains predicate on the "manavis_code" field.
+func ManavisCodeContains(v string) predicate.Student {
+	return predicate.Student(sql.FieldContains(FieldManavisCode, v))
+}
+
+// ManavisCodeHasPrefix applies the HasPrefix predicate on the "manavis_code" field.
+func ManavisCodeHasPrefix(v string) predicate.Student {
+	return predicate.Student(sql.FieldHasPrefix(FieldManavisCode, v))
+}
+
+// ManavisCodeHasSuffix applies the HasSuffix predicate on the "manavis_code" field.
+func ManavisCodeHasSuffix(v string) predicate.Student {
+	return predicate.Student(sql.FieldHasSuffix(FieldManavisCode, v))
+}
+
+// ManavisCodeEqualFold applies the EqualFold predicate on the "manavis_code" field.
+func ManavisCodeEqualFold(v string) predicate.Student {
+	return predicate.Student(sql.FieldEqualFold(FieldManavisCode, v))
+}
+
+// ManavisCodeContainsFold applies the ContainsFold predicate on the "manavis_code" field.
+func ManavisCodeContainsFold(v string) predicate.Student {
+	return predicate.Student(sql.FieldContainsFold(FieldManavisCode, v))
+}
+
+// HasCheckins applies the HasEdge predicate on the "checkins" edge.
+func HasCheckins() predicate.Student {
+	return predicate.Student(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, CheckinsTable, CheckinsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCheckinsWith applies the HasEdge predicate on the "checkins" edge with a given conditions (other predicates).
+func HasCheckinsWith(preds ...predicate.StudentCheckin) predicate.Student {
+	return predicate.Student(func(s *sql.Selector) {
+		step := newCheckinsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasCheckouts applies the HasEdge predicate on the "checkouts" edge.
+func HasCheckouts() predicate.Student {
+	return predicate.Student(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, CheckoutsTable, CheckoutsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCheckoutsWith applies the HasEdge predicate on the "checkouts" edge with a given conditions (other predicates).
+func HasCheckoutsWith(preds ...predicate.StudentCheckout) predicate.Student {
+	return predicate.Student(func(s *sql.Selector) {
+		step := newCheckoutsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

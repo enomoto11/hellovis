@@ -4,9 +4,12 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"hellovis/ent/predicate"
 	"hellovis/ent/student"
+	"hellovis/ent/studentcheckin"
+	"hellovis/ent/studentcheckout"
 	"math"
 
 	"entgo.io/ent/dialect/sql"
@@ -18,10 +21,12 @@ import (
 // StudentQuery is the builder for querying Student entities.
 type StudentQuery struct {
 	config
-	ctx        *QueryContext
-	order      []student.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Student
+	ctx           *QueryContext
+	order         []student.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.Student
+	withCheckins  *StudentCheckinQuery
+	withCheckouts *StudentCheckoutQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -56,6 +61,50 @@ func (sq *StudentQuery) Unique(unique bool) *StudentQuery {
 func (sq *StudentQuery) Order(o ...student.OrderOption) *StudentQuery {
 	sq.order = append(sq.order, o...)
 	return sq
+}
+
+// QueryCheckins chains the current query on the "checkins" edge.
+func (sq *StudentQuery) QueryCheckins() *StudentCheckinQuery {
+	query := (&StudentCheckinClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(student.Table, student.FieldID, selector),
+			sqlgraph.To(studentcheckin.Table, studentcheckin.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, student.CheckinsTable, student.CheckinsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCheckouts chains the current query on the "checkouts" edge.
+func (sq *StudentQuery) QueryCheckouts() *StudentCheckoutQuery {
+	query := (&StudentCheckoutClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(student.Table, student.FieldID, selector),
+			sqlgraph.To(studentcheckout.Table, studentcheckout.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, student.CheckoutsTable, student.CheckoutsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Student entity from the query.
@@ -245,15 +294,39 @@ func (sq *StudentQuery) Clone() *StudentQuery {
 		return nil
 	}
 	return &StudentQuery{
-		config:     sq.config,
-		ctx:        sq.ctx.Clone(),
-		order:      append([]student.OrderOption{}, sq.order...),
-		inters:     append([]Interceptor{}, sq.inters...),
-		predicates: append([]predicate.Student{}, sq.predicates...),
+		config:        sq.config,
+		ctx:           sq.ctx.Clone(),
+		order:         append([]student.OrderOption{}, sq.order...),
+		inters:        append([]Interceptor{}, sq.inters...),
+		predicates:    append([]predicate.Student{}, sq.predicates...),
+		withCheckins:  sq.withCheckins.Clone(),
+		withCheckouts: sq.withCheckouts.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
 	}
+}
+
+// WithCheckins tells the query-builder to eager-load the nodes that are connected to
+// the "checkins" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StudentQuery) WithCheckins(opts ...func(*StudentCheckinQuery)) *StudentQuery {
+	query := (&StudentCheckinClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withCheckins = query
+	return sq
+}
+
+// WithCheckouts tells the query-builder to eager-load the nodes that are connected to
+// the "checkouts" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StudentQuery) WithCheckouts(opts ...func(*StudentCheckoutQuery)) *StudentQuery {
+	query := (&StudentCheckoutClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withCheckouts = query
+	return sq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -332,8 +405,12 @@ func (sq *StudentQuery) prepareQuery(ctx context.Context) error {
 
 func (sq *StudentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Student, error) {
 	var (
-		nodes = []*Student{}
-		_spec = sq.querySpec()
+		nodes       = []*Student{}
+		_spec       = sq.querySpec()
+		loadedTypes = [2]bool{
+			sq.withCheckins != nil,
+			sq.withCheckouts != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Student).scanValues(nil, columns)
@@ -341,6 +418,7 @@ func (sq *StudentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Stud
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Student{config: sq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -352,7 +430,82 @@ func (sq *StudentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Stud
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := sq.withCheckins; query != nil {
+		if err := sq.loadCheckins(ctx, query, nodes,
+			func(n *Student) { n.Edges.Checkins = []*StudentCheckin{} },
+			func(n *Student, e *StudentCheckin) { n.Edges.Checkins = append(n.Edges.Checkins, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withCheckouts; query != nil {
+		if err := sq.loadCheckouts(ctx, query, nodes,
+			func(n *Student) { n.Edges.Checkouts = []*StudentCheckout{} },
+			func(n *Student, e *StudentCheckout) { n.Edges.Checkouts = append(n.Edges.Checkouts, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (sq *StudentQuery) loadCheckins(ctx context.Context, query *StudentCheckinQuery, nodes []*Student, init func(*Student), assign func(*Student, *StudentCheckin)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Student)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(studentcheckin.FieldStudentID)
+	}
+	query.Where(predicate.StudentCheckin(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(student.CheckinsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.StudentID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "student_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (sq *StudentQuery) loadCheckouts(ctx context.Context, query *StudentCheckoutQuery, nodes []*Student, init func(*Student), assign func(*Student, *StudentCheckout)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Student)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(studentcheckout.FieldStudentID)
+	}
+	query.Where(predicate.StudentCheckout(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(student.CheckoutsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.StudentID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "student_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (sq *StudentQuery) sqlCount(ctx context.Context) (int, error) {
