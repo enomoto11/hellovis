@@ -43,8 +43,8 @@ type StudentMutation struct {
 	deleted_at       *time.Time
 	last_name        *string
 	first_name       *string
-	grade            *int16
-	addgrade         *int16
+	grade            *int
+	addgrade         *int
 	is_high_school   *bool
 	manavis_code     *string
 	clearedFields    map[string]struct{}
@@ -344,13 +344,13 @@ func (m *StudentMutation) ResetFirstName() {
 }
 
 // SetGrade sets the "grade" field.
-func (m *StudentMutation) SetGrade(i int16) {
+func (m *StudentMutation) SetGrade(i int) {
 	m.grade = &i
 	m.addgrade = nil
 }
 
 // Grade returns the value of the "grade" field in the mutation.
-func (m *StudentMutation) Grade() (r int16, exists bool) {
+func (m *StudentMutation) Grade() (r int, exists bool) {
 	v := m.grade
 	if v == nil {
 		return
@@ -361,7 +361,7 @@ func (m *StudentMutation) Grade() (r int16, exists bool) {
 // OldGrade returns the old "grade" field's value of the Student entity.
 // If the Student object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StudentMutation) OldGrade(ctx context.Context) (v int16, err error) {
+func (m *StudentMutation) OldGrade(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldGrade is only allowed on UpdateOne operations")
 	}
@@ -376,7 +376,7 @@ func (m *StudentMutation) OldGrade(ctx context.Context) (v int16, err error) {
 }
 
 // AddGrade adds i to the "grade" field.
-func (m *StudentMutation) AddGrade(i int16) {
+func (m *StudentMutation) AddGrade(i int) {
 	if m.addgrade != nil {
 		*m.addgrade += i
 	} else {
@@ -385,7 +385,7 @@ func (m *StudentMutation) AddGrade(i int16) {
 }
 
 // AddedGrade returns the value that was added to the "grade" field in this mutation.
-func (m *StudentMutation) AddedGrade() (r int16, exists bool) {
+func (m *StudentMutation) AddedGrade() (r int, exists bool) {
 	v := m.addgrade
 	if v == nil {
 		return
@@ -732,7 +732,7 @@ func (m *StudentMutation) SetField(name string, value ent.Value) error {
 		m.SetFirstName(v)
 		return nil
 	case student.FieldGrade:
-		v, ok := value.(int16)
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -783,7 +783,7 @@ func (m *StudentMutation) AddedField(name string) (ent.Value, bool) {
 func (m *StudentMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case student.FieldGrade:
-		v, ok := value.(int16)
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

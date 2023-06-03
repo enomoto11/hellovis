@@ -56,14 +56,14 @@ func (su *StudentUpdate) SetFirstName(s string) *StudentUpdate {
 }
 
 // SetGrade sets the "grade" field.
-func (su *StudentUpdate) SetGrade(i int16) *StudentUpdate {
+func (su *StudentUpdate) SetGrade(i int) *StudentUpdate {
 	su.mutation.ResetGrade()
 	su.mutation.SetGrade(i)
 	return su
 }
 
 // AddGrade adds i to the "grade" field.
-func (su *StudentUpdate) AddGrade(i int16) *StudentUpdate {
+func (su *StudentUpdate) AddGrade(i int) *StudentUpdate {
 	su.mutation.AddGrade(i)
 	return su
 }
@@ -255,10 +255,10 @@ func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(student.FieldFirstName, field.TypeString, value)
 	}
 	if value, ok := su.mutation.Grade(); ok {
-		_spec.SetField(student.FieldGrade, field.TypeInt16, value)
+		_spec.SetField(student.FieldGrade, field.TypeInt, value)
 	}
 	if value, ok := su.mutation.AddedGrade(); ok {
-		_spec.AddField(student.FieldGrade, field.TypeInt16, value)
+		_spec.AddField(student.FieldGrade, field.TypeInt, value)
 	}
 	if value, ok := su.mutation.IsHighSchool(); ok {
 		_spec.SetField(student.FieldIsHighSchool, field.TypeBool, value)
@@ -401,14 +401,14 @@ func (suo *StudentUpdateOne) SetFirstName(s string) *StudentUpdateOne {
 }
 
 // SetGrade sets the "grade" field.
-func (suo *StudentUpdateOne) SetGrade(i int16) *StudentUpdateOne {
+func (suo *StudentUpdateOne) SetGrade(i int) *StudentUpdateOne {
 	suo.mutation.ResetGrade()
 	suo.mutation.SetGrade(i)
 	return suo
 }
 
 // AddGrade adds i to the "grade" field.
-func (suo *StudentUpdateOne) AddGrade(i int16) *StudentUpdateOne {
+func (suo *StudentUpdateOne) AddGrade(i int) *StudentUpdateOne {
 	suo.mutation.AddGrade(i)
 	return suo
 }
@@ -630,10 +630,10 @@ func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err e
 		_spec.SetField(student.FieldFirstName, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.Grade(); ok {
-		_spec.SetField(student.FieldGrade, field.TypeInt16, value)
+		_spec.SetField(student.FieldGrade, field.TypeInt, value)
 	}
 	if value, ok := suo.mutation.AddedGrade(); ok {
-		_spec.AddField(student.FieldGrade, field.TypeInt16, value)
+		_spec.AddField(student.FieldGrade, field.TypeInt, value)
 	}
 	if value, ok := suo.mutation.IsHighSchool(); ok {
 		_spec.SetField(student.FieldIsHighSchool, field.TypeBool, value)

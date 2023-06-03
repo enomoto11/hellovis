@@ -18,7 +18,7 @@ func (Student) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("last_name").NotEmpty(),
 		field.String("first_name").NotEmpty(),
-		field.Int16("grade").Min(1).Max(3),
+		field.Int("grade").Min(1).Max(3),
 		field.Bool("is_high_school").Default(true),
 		field.String("manavis_code").NotEmpty().Unique(),
 	}

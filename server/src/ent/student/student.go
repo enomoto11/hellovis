@@ -90,7 +90,7 @@ var (
 	// FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
 	FirstNameValidator func(string) error
 	// GradeValidator is a validator for the "grade" field. It is called by the builders before save.
-	GradeValidator func(int16) error
+	GradeValidator func(int) error
 	// DefaultIsHighSchool holds the default value on creation for the "is_high_school" field.
 	DefaultIsHighSchool bool
 	// ManavisCodeValidator is a validator for the "manavis_code" field. It is called by the builders before save.

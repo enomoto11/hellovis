@@ -60,6 +60,12 @@ func NewStudentManavisCode(manavisCode string) NewStudentOption {
 	}
 }
 
+func NewStudentIsInHighSchool(isInHighSchool bool) NewStudentOption {
+	return func(s *Student) {
+		s.isInHighSchool = isInHighSchool
+	}
+}
+
 func (s *Student) GetID() uuid.UUID {
 	return s.id
 }

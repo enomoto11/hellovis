@@ -29,7 +29,7 @@ type Student struct {
 	// FirstName holds the value of the "first_name" field.
 	FirstName string `json:"first_name,omitempty"`
 	// Grade holds the value of the "grade" field.
-	Grade int16 `json:"grade,omitempty"`
+	Grade int `json:"grade,omitempty"`
 	// IsHighSchool holds the value of the "is_high_school" field.
 	IsHighSchool bool `json:"is_high_school,omitempty"`
 	// ManavisCode holds the value of the "manavis_code" field.
@@ -139,7 +139,7 @@ func (s *Student) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field grade", values[i])
 			} else if value.Valid {
-				s.Grade = int16(value.Int64)
+				s.Grade = int(value.Int64)
 			}
 		case student.FieldIsHighSchool:
 			if value, ok := values[i].(*sql.NullBool); !ok {

@@ -16,7 +16,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "last_name", Type: field.TypeString},
 		{Name: "first_name", Type: field.TypeString},
-		{Name: "grade", Type: field.TypeInt16},
+		{Name: "grade", Type: field.TypeInt},
 		{Name: "is_high_school", Type: field.TypeBool, Default: true},
 		{Name: "manavis_code", Type: field.TypeString, Unique: true},
 	}

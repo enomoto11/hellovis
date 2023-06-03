@@ -70,7 +70,7 @@ func (sc *StudentCreate) SetFirstName(s string) *StudentCreate {
 }
 
 // SetGrade sets the "grade" field.
-func (sc *StudentCreate) SetGrade(i int16) *StudentCreate {
+func (sc *StudentCreate) SetGrade(i int) *StudentCreate {
 	sc.mutation.SetGrade(i)
 	return sc
 }
@@ -294,7 +294,7 @@ func (sc *StudentCreate) createSpec() (*Student, *sqlgraph.CreateSpec) {
 		_node.FirstName = value
 	}
 	if value, ok := sc.mutation.Grade(); ok {
-		_spec.SetField(student.FieldGrade, field.TypeInt16, value)
+		_spec.SetField(student.FieldGrade, field.TypeInt, value)
 		_node.Grade = value
 	}
 	if value, ok := sc.mutation.IsHighSchool(); ok {

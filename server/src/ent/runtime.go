@@ -48,13 +48,13 @@ func init() {
 	// studentDescGrade is the schema descriptor for grade field.
 	studentDescGrade := studentFields[2].Descriptor()
 	// student.GradeValidator is a validator for the "grade" field. It is called by the builders before save.
-	student.GradeValidator = func() func(int16) error {
+	student.GradeValidator = func() func(int) error {
 		validators := studentDescGrade.Validators
-		fns := [...]func(int16) error{
-			validators[0].(func(int16) error),
-			validators[1].(func(int16) error),
+		fns := [...]func(int) error{
+			validators[0].(func(int) error),
+			validators[1].(func(int) error),
 		}
-		return func(grade int16) error {
+		return func(grade int) error {
 			for _, fn := range fns {
 				if err := fn(grade); err != nil {
 					return err

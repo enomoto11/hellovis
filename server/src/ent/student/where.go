@@ -82,7 +82,7 @@ func FirstName(v string) predicate.Student {
 }
 
 // Grade applies equality check predicate on the "grade" field. It's identical to GradeEQ.
-func Grade(v int16) predicate.Student {
+func Grade(v int) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldGrade, v))
 }
 
@@ -347,42 +347,42 @@ func FirstNameContainsFold(v string) predicate.Student {
 }
 
 // GradeEQ applies the EQ predicate on the "grade" field.
-func GradeEQ(v int16) predicate.Student {
+func GradeEQ(v int) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldGrade, v))
 }
 
 // GradeNEQ applies the NEQ predicate on the "grade" field.
-func GradeNEQ(v int16) predicate.Student {
+func GradeNEQ(v int) predicate.Student {
 	return predicate.Student(sql.FieldNEQ(FieldGrade, v))
 }
 
 // GradeIn applies the In predicate on the "grade" field.
-func GradeIn(vs ...int16) predicate.Student {
+func GradeIn(vs ...int) predicate.Student {
 	return predicate.Student(sql.FieldIn(FieldGrade, vs...))
 }
 
 // GradeNotIn applies the NotIn predicate on the "grade" field.
-func GradeNotIn(vs ...int16) predicate.Student {
+func GradeNotIn(vs ...int) predicate.Student {
 	return predicate.Student(sql.FieldNotIn(FieldGrade, vs...))
 }
 
 // GradeGT applies the GT predicate on the "grade" field.
-func GradeGT(v int16) predicate.Student {
+func GradeGT(v int) predicate.Student {
 	return predicate.Student(sql.FieldGT(FieldGrade, v))
 }
 
 // GradeGTE applies the GTE predicate on the "grade" field.
-func GradeGTE(v int16) predicate.Student {
+func GradeGTE(v int) predicate.Student {
 	return predicate.Student(sql.FieldGTE(FieldGrade, v))
 }
 
 // GradeLT applies the LT predicate on the "grade" field.
-func GradeLT(v int16) predicate.Student {
+func GradeLT(v int) predicate.Student {
 	return predicate.Student(sql.FieldLT(FieldGrade, v))
 }
 
 // GradeLTE applies the LTE predicate on the "grade" field.
-func GradeLTE(v int16) predicate.Student {
+func GradeLTE(v int) predicate.Student {
 	return predicate.Student(sql.FieldLTE(FieldGrade, v))
 }
 
