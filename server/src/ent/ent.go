@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"hellovis/ent/student"
+	"hellovis/ent/studentcheckin"
+	"hellovis/ent/studentcheckout"
 	"reflect"
 	"sync"
 
@@ -73,7 +75,9 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			student.Table: student.ValidColumn,
+			student.Table:         student.ValidColumn,
+			studentcheckin.Table:  studentcheckin.ValidColumn,
+			studentcheckout.Table: studentcheckout.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

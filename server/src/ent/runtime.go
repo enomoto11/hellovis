@@ -5,6 +5,8 @@ package ent
 import (
 	"hellovis/ent/schema"
 	"hellovis/ent/student"
+	"hellovis/ent/studentcheckin"
+	"hellovis/ent/studentcheckout"
 	"time"
 
 	"github.com/google/uuid"
@@ -35,4 +37,46 @@ func init() {
 	studentDescID := studentMixinFields1[0].Descriptor()
 	// student.DefaultID holds the default value on creation for the id field.
 	student.DefaultID = studentDescID.Default.(func() uuid.UUID)
+	studentcheckinMixin := schema.StudentCheckin{}.Mixin()
+	studentcheckinMixinFields0 := studentcheckinMixin[0].Fields()
+	_ = studentcheckinMixinFields0
+	studentcheckinMixinFields1 := studentcheckinMixin[1].Fields()
+	_ = studentcheckinMixinFields1
+	studentcheckinFields := schema.StudentCheckin{}.Fields()
+	_ = studentcheckinFields
+	// studentcheckinDescCreatedAt is the schema descriptor for created_at field.
+	studentcheckinDescCreatedAt := studentcheckinMixinFields0[0].Descriptor()
+	// studentcheckin.DefaultCreatedAt holds the default value on creation for the created_at field.
+	studentcheckin.DefaultCreatedAt = studentcheckinDescCreatedAt.Default.(func() time.Time)
+	// studentcheckinDescUpdatedAt is the schema descriptor for updated_at field.
+	studentcheckinDescUpdatedAt := studentcheckinMixinFields0[1].Descriptor()
+	// studentcheckin.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	studentcheckin.DefaultUpdatedAt = studentcheckinDescUpdatedAt.Default.(func() time.Time)
+	// studentcheckin.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	studentcheckin.UpdateDefaultUpdatedAt = studentcheckinDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// studentcheckinDescID is the schema descriptor for id field.
+	studentcheckinDescID := studentcheckinMixinFields1[0].Descriptor()
+	// studentcheckin.DefaultID holds the default value on creation for the id field.
+	studentcheckin.DefaultID = studentcheckinDescID.Default.(func() uuid.UUID)
+	studentcheckoutMixin := schema.StudentCheckout{}.Mixin()
+	studentcheckoutMixinFields0 := studentcheckoutMixin[0].Fields()
+	_ = studentcheckoutMixinFields0
+	studentcheckoutMixinFields1 := studentcheckoutMixin[1].Fields()
+	_ = studentcheckoutMixinFields1
+	studentcheckoutFields := schema.StudentCheckout{}.Fields()
+	_ = studentcheckoutFields
+	// studentcheckoutDescCreatedAt is the schema descriptor for created_at field.
+	studentcheckoutDescCreatedAt := studentcheckoutMixinFields0[0].Descriptor()
+	// studentcheckout.DefaultCreatedAt holds the default value on creation for the created_at field.
+	studentcheckout.DefaultCreatedAt = studentcheckoutDescCreatedAt.Default.(func() time.Time)
+	// studentcheckoutDescUpdatedAt is the schema descriptor for updated_at field.
+	studentcheckoutDescUpdatedAt := studentcheckoutMixinFields0[1].Descriptor()
+	// studentcheckout.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	studentcheckout.DefaultUpdatedAt = studentcheckoutDescUpdatedAt.Default.(func() time.Time)
+	// studentcheckout.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	studentcheckout.UpdateDefaultUpdatedAt = studentcheckoutDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// studentcheckoutDescID is the schema descriptor for id field.
+	studentcheckoutDescID := studentcheckoutMixinFields1[0].Descriptor()
+	// studentcheckout.DefaultID holds the default value on creation for the id field.
+	studentcheckout.DefaultID = studentcheckoutDescID.Default.(func() uuid.UUID)
 }

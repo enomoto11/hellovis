@@ -11,6 +11,8 @@ import (
 	"hellovis/ent/migrate"
 
 	"hellovis/ent/student"
+	"hellovis/ent/studentcheckin"
+	"hellovis/ent/studentcheckout"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
@@ -25,6 +27,10 @@ type Client struct {
 	Schema *migrate.Schema
 	// Student is the client for interacting with the Student builders.
 	Student *StudentClient
+	// StudentCheckin is the client for interacting with the StudentCheckin builders.
+	StudentCheckin *StudentCheckinClient
+	// StudentCheckout is the client for interacting with the StudentCheckout builders.
+	StudentCheckout *StudentCheckoutClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -39,6 +45,8 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Student = NewStudentClient(c.config)
+	c.StudentCheckin = NewStudentCheckinClient(c.config)
+	c.StudentCheckout = NewStudentCheckoutClient(c.config)
 }
 
 type (
@@ -119,9 +127,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Student: NewStudentClient(cfg),
+		ctx:             ctx,
+		config:          cfg,
+		Student:         NewStudentClient(cfg),
+		StudentCheckin:  NewStudentCheckinClient(cfg),
+		StudentCheckout: NewStudentCheckoutClient(cfg),
 	}, nil
 }
 
@@ -139,9 +149,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Student: NewStudentClient(cfg),
+		ctx:             ctx,
+		config:          cfg,
+		Student:         NewStudentClient(cfg),
+		StudentCheckin:  NewStudentCheckinClient(cfg),
+		StudentCheckout: NewStudentCheckoutClient(cfg),
 	}, nil
 }
 
@@ -171,12 +183,16 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Student.Use(hooks...)
+	c.StudentCheckin.Use(hooks...)
+	c.StudentCheckout.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Student.Intercept(interceptors...)
+	c.StudentCheckin.Intercept(interceptors...)
+	c.StudentCheckout.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -184,6 +200,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *StudentMutation:
 		return c.Student.mutate(ctx, m)
+	case *StudentCheckinMutation:
+		return c.StudentCheckin.mutate(ctx, m)
+	case *StudentCheckoutMutation:
+		return c.StudentCheckout.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -307,12 +327,248 @@ func (c *StudentClient) mutate(ctx context.Context, m *StudentMutation) (Value, 
 	}
 }
 
+// StudentCheckinClient is a client for the StudentCheckin schema.
+type StudentCheckinClient struct {
+	config
+}
+
+// NewStudentCheckinClient returns a client for the StudentCheckin from the given config.
+func NewStudentCheckinClient(c config) *StudentCheckinClient {
+	return &StudentCheckinClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `studentcheckin.Hooks(f(g(h())))`.
+func (c *StudentCheckinClient) Use(hooks ...Hook) {
+	c.hooks.StudentCheckin = append(c.hooks.StudentCheckin, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `studentcheckin.Intercept(f(g(h())))`.
+func (c *StudentCheckinClient) Intercept(interceptors ...Interceptor) {
+	c.inters.StudentCheckin = append(c.inters.StudentCheckin, interceptors...)
+}
+
+// Create returns a builder for creating a StudentCheckin entity.
+func (c *StudentCheckinClient) Create() *StudentCheckinCreate {
+	mutation := newStudentCheckinMutation(c.config, OpCreate)
+	return &StudentCheckinCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of StudentCheckin entities.
+func (c *StudentCheckinClient) CreateBulk(builders ...*StudentCheckinCreate) *StudentCheckinCreateBulk {
+	return &StudentCheckinCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for StudentCheckin.
+func (c *StudentCheckinClient) Update() *StudentCheckinUpdate {
+	mutation := newStudentCheckinMutation(c.config, OpUpdate)
+	return &StudentCheckinUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *StudentCheckinClient) UpdateOne(sc *StudentCheckin) *StudentCheckinUpdateOne {
+	mutation := newStudentCheckinMutation(c.config, OpUpdateOne, withStudentCheckin(sc))
+	return &StudentCheckinUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *StudentCheckinClient) UpdateOneID(id uuid.UUID) *StudentCheckinUpdateOne {
+	mutation := newStudentCheckinMutation(c.config, OpUpdateOne, withStudentCheckinID(id))
+	return &StudentCheckinUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for StudentCheckin.
+func (c *StudentCheckinClient) Delete() *StudentCheckinDelete {
+	mutation := newStudentCheckinMutation(c.config, OpDelete)
+	return &StudentCheckinDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *StudentCheckinClient) DeleteOne(sc *StudentCheckin) *StudentCheckinDeleteOne {
+	return c.DeleteOneID(sc.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *StudentCheckinClient) DeleteOneID(id uuid.UUID) *StudentCheckinDeleteOne {
+	builder := c.Delete().Where(studentcheckin.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &StudentCheckinDeleteOne{builder}
+}
+
+// Query returns a query builder for StudentCheckin.
+func (c *StudentCheckinClient) Query() *StudentCheckinQuery {
+	return &StudentCheckinQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeStudentCheckin},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a StudentCheckin entity by its id.
+func (c *StudentCheckinClient) Get(ctx context.Context, id uuid.UUID) (*StudentCheckin, error) {
+	return c.Query().Where(studentcheckin.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *StudentCheckinClient) GetX(ctx context.Context, id uuid.UUID) *StudentCheckin {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *StudentCheckinClient) Hooks() []Hook {
+	return c.hooks.StudentCheckin
+}
+
+// Interceptors returns the client interceptors.
+func (c *StudentCheckinClient) Interceptors() []Interceptor {
+	return c.inters.StudentCheckin
+}
+
+func (c *StudentCheckinClient) mutate(ctx context.Context, m *StudentCheckinMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&StudentCheckinCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&StudentCheckinUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&StudentCheckinUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&StudentCheckinDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown StudentCheckin mutation op: %q", m.Op())
+	}
+}
+
+// StudentCheckoutClient is a client for the StudentCheckout schema.
+type StudentCheckoutClient struct {
+	config
+}
+
+// NewStudentCheckoutClient returns a client for the StudentCheckout from the given config.
+func NewStudentCheckoutClient(c config) *StudentCheckoutClient {
+	return &StudentCheckoutClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `studentcheckout.Hooks(f(g(h())))`.
+func (c *StudentCheckoutClient) Use(hooks ...Hook) {
+	c.hooks.StudentCheckout = append(c.hooks.StudentCheckout, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `studentcheckout.Intercept(f(g(h())))`.
+func (c *StudentCheckoutClient) Intercept(interceptors ...Interceptor) {
+	c.inters.StudentCheckout = append(c.inters.StudentCheckout, interceptors...)
+}
+
+// Create returns a builder for creating a StudentCheckout entity.
+func (c *StudentCheckoutClient) Create() *StudentCheckoutCreate {
+	mutation := newStudentCheckoutMutation(c.config, OpCreate)
+	return &StudentCheckoutCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of StudentCheckout entities.
+func (c *StudentCheckoutClient) CreateBulk(builders ...*StudentCheckoutCreate) *StudentCheckoutCreateBulk {
+	return &StudentCheckoutCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for StudentCheckout.
+func (c *StudentCheckoutClient) Update() *StudentCheckoutUpdate {
+	mutation := newStudentCheckoutMutation(c.config, OpUpdate)
+	return &StudentCheckoutUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *StudentCheckoutClient) UpdateOne(sc *StudentCheckout) *StudentCheckoutUpdateOne {
+	mutation := newStudentCheckoutMutation(c.config, OpUpdateOne, withStudentCheckout(sc))
+	return &StudentCheckoutUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *StudentCheckoutClient) UpdateOneID(id uuid.UUID) *StudentCheckoutUpdateOne {
+	mutation := newStudentCheckoutMutation(c.config, OpUpdateOne, withStudentCheckoutID(id))
+	return &StudentCheckoutUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for StudentCheckout.
+func (c *StudentCheckoutClient) Delete() *StudentCheckoutDelete {
+	mutation := newStudentCheckoutMutation(c.config, OpDelete)
+	return &StudentCheckoutDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *StudentCheckoutClient) DeleteOne(sc *StudentCheckout) *StudentCheckoutDeleteOne {
+	return c.DeleteOneID(sc.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *StudentCheckoutClient) DeleteOneID(id uuid.UUID) *StudentCheckoutDeleteOne {
+	builder := c.Delete().Where(studentcheckout.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &StudentCheckoutDeleteOne{builder}
+}
+
+// Query returns a query builder for StudentCheckout.
+func (c *StudentCheckoutClient) Query() *StudentCheckoutQuery {
+	return &StudentCheckoutQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeStudentCheckout},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a StudentCheckout entity by its id.
+func (c *StudentCheckoutClient) Get(ctx context.Context, id uuid.UUID) (*StudentCheckout, error) {
+	return c.Query().Where(studentcheckout.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *StudentCheckoutClient) GetX(ctx context.Context, id uuid.UUID) *StudentCheckout {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *StudentCheckoutClient) Hooks() []Hook {
+	return c.hooks.StudentCheckout
+}
+
+// Interceptors returns the client interceptors.
+func (c *StudentCheckoutClient) Interceptors() []Interceptor {
+	return c.inters.StudentCheckout
+}
+
+func (c *StudentCheckoutClient) mutate(ctx context.Context, m *StudentCheckoutMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&StudentCheckoutCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&StudentCheckoutUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&StudentCheckoutUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&StudentCheckoutDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown StudentCheckout mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Student []ent.Hook
+		Student, StudentCheckin, StudentCheckout []ent.Hook
 	}
 	inters struct {
-		Student []ent.Interceptor
+		Student, StudentCheckin, StudentCheckout []ent.Interceptor
 	}
 )

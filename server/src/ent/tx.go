@@ -14,6 +14,10 @@ type Tx struct {
 	config
 	// Student is the client for interacting with the Student builders.
 	Student *StudentClient
+	// StudentCheckin is the client for interacting with the StudentCheckin builders.
+	StudentCheckin *StudentCheckinClient
+	// StudentCheckout is the client for interacting with the StudentCheckout builders.
+	StudentCheckout *StudentCheckoutClient
 
 	// lazily loaded.
 	client     *Client
@@ -146,6 +150,8 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Student = NewStudentClient(tx.config)
+	tx.StudentCheckin = NewStudentCheckinClient(tx.config)
+	tx.StudentCheckout = NewStudentCheckoutClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

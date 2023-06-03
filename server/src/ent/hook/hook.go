@@ -20,6 +20,30 @@ func (f StudentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.StudentMutation", m)
 }
 
+// The StudentCheckinFunc type is an adapter to allow the use of ordinary
+// function as StudentCheckin mutator.
+type StudentCheckinFunc func(context.Context, *ent.StudentCheckinMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f StudentCheckinFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.StudentCheckinMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.StudentCheckinMutation", m)
+}
+
+// The StudentCheckoutFunc type is an adapter to allow the use of ordinary
+// function as StudentCheckout mutator.
+type StudentCheckoutFunc func(context.Context, *ent.StudentCheckoutMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f StudentCheckoutFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.StudentCheckoutMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.StudentCheckoutMutation", m)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, ent.Mutation) bool
 

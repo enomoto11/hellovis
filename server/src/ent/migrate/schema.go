@@ -20,9 +20,35 @@ var (
 		Columns:    StudentsColumns,
 		PrimaryKey: []*schema.Column{StudentsColumns[0]},
 	}
+	// StudentCheckinsColumns holds the columns for the "student_checkins" table.
+	StudentCheckinsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
+	}
+	// StudentCheckinsTable holds the schema information for the "student_checkins" table.
+	StudentCheckinsTable = &schema.Table{
+		Name:       "student_checkins",
+		Columns:    StudentCheckinsColumns,
+		PrimaryKey: []*schema.Column{StudentCheckinsColumns[0]},
+	}
+	// StudentCheckoutsColumns holds the columns for the "student_checkouts" table.
+	StudentCheckoutsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
+	}
+	// StudentCheckoutsTable holds the schema information for the "student_checkouts" table.
+	StudentCheckoutsTable = &schema.Table{
+		Name:       "student_checkouts",
+		Columns:    StudentCheckoutsColumns,
+		PrimaryKey: []*schema.Column{StudentCheckoutsColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		StudentsTable,
+		StudentCheckinsTable,
+		StudentCheckoutsTable,
 	}
 )
 

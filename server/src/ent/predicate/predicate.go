@@ -8,3 +8,9 @@ import (
 
 // Student is the predicate function for student builders.
 type Student func(*sql.Selector)
+
+// StudentCheckin is the predicate function for studentcheckin builders.
+type StudentCheckin func(*sql.Selector)
+
+// StudentCheckout is the predicate function for studentcheckout builders.
+type StudentCheckout func(*sql.Selector)
