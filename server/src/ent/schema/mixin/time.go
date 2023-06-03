@@ -28,5 +28,11 @@ func (TimeMixin) Fields() []ent.Field {
 			SchemaType(map[string]string{
 				dialect.MySQL: "datetime(6)",
 			}),
+		field.Time("deleted_at").
+			Default(nil).
+			UpdateDefault(time.Now).
+			SchemaType(map[string]string{
+				dialect.MySQL: "datetime(6)",
+			}),
 	}
 }

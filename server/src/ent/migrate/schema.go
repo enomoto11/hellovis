@@ -13,6 +13,7 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
+		{Name: "deleted_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 	}
 	// StudentsTable holds the schema information for the "students" table.
 	StudentsTable = &schema.Table{
@@ -25,6 +26,7 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
+		{Name: "deleted_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 	}
 	// StudentCheckinsTable holds the schema information for the "student_checkins" table.
 	StudentCheckinsTable = &schema.Table{
@@ -37,6 +39,7 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
+		{Name: "deleted_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 	}
 	// StudentCheckoutsTable holds the schema information for the "student_checkouts" table.
 	StudentCheckoutsTable = &schema.Table{

@@ -34,6 +34,12 @@ func (su *StudentUpdate) SetUpdatedAt(t time.Time) *StudentUpdate {
 	return su
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (su *StudentUpdate) SetDeletedAt(t time.Time) *StudentUpdate {
+	su.mutation.SetDeletedAt(t)
+	return su
+}
+
 // Mutation returns the StudentMutation object of the builder.
 func (su *StudentUpdate) Mutation() *StudentMutation {
 	return su.mutation
@@ -73,6 +79,10 @@ func (su *StudentUpdate) defaults() {
 		v := student.UpdateDefaultUpdatedAt()
 		su.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := su.mutation.DeletedAt(); !ok {
+		v := student.UpdateDefaultDeletedAt()
+		su.mutation.SetDeletedAt(v)
+	}
 }
 
 func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
@@ -86,6 +96,9 @@ func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.UpdatedAt(); ok {
 		_spec.SetField(student.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := su.mutation.DeletedAt(); ok {
+		_spec.SetField(student.FieldDeletedAt, field.TypeTime, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -110,6 +123,12 @@ type StudentUpdateOne struct {
 // SetUpdatedAt sets the "updated_at" field.
 func (suo *StudentUpdateOne) SetUpdatedAt(t time.Time) *StudentUpdateOne {
 	suo.mutation.SetUpdatedAt(t)
+	return suo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (suo *StudentUpdateOne) SetDeletedAt(t time.Time) *StudentUpdateOne {
+	suo.mutation.SetDeletedAt(t)
 	return suo
 }
 
@@ -165,6 +184,10 @@ func (suo *StudentUpdateOne) defaults() {
 		v := student.UpdateDefaultUpdatedAt()
 		suo.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := suo.mutation.DeletedAt(); !ok {
+		v := student.UpdateDefaultDeletedAt()
+		suo.mutation.SetDeletedAt(v)
+	}
 }
 
 func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err error) {
@@ -195,6 +218,9 @@ func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err e
 	}
 	if value, ok := suo.mutation.UpdatedAt(); ok {
 		_spec.SetField(student.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := suo.mutation.DeletedAt(); ok {
+		_spec.SetField(student.FieldDeletedAt, field.TypeTime, value)
 	}
 	_node = &Student{config: suo.config}
 	_spec.Assign = _node.assignValues

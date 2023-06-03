@@ -49,6 +49,12 @@ func (sc *StudentCreate) SetNillableUpdatedAt(t *time.Time) *StudentCreate {
 	return sc
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (sc *StudentCreate) SetDeletedAt(t time.Time) *StudentCreate {
+	sc.mutation.SetDeletedAt(t)
+	return sc
+}
+
 // SetID sets the "id" field.
 func (sc *StudentCreate) SetID(u uuid.UUID) *StudentCreate {
 	sc.mutation.SetID(u)
@@ -120,6 +126,9 @@ func (sc *StudentCreate) check() error {
 	if _, ok := sc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Student.updated_at"`)}
 	}
+	if _, ok := sc.mutation.DeletedAt(); !ok {
+		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "Student.deleted_at"`)}
+	}
 	return nil
 }
 
@@ -162,6 +171,10 @@ func (sc *StudentCreate) createSpec() (*Student, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.UpdatedAt(); ok {
 		_spec.SetField(student.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := sc.mutation.DeletedAt(); ok {
+		_spec.SetField(student.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = value
 	}
 	return _node, _spec
 }

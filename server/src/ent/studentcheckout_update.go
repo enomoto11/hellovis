@@ -34,6 +34,12 @@ func (scu *StudentCheckoutUpdate) SetUpdatedAt(t time.Time) *StudentCheckoutUpda
 	return scu
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (scu *StudentCheckoutUpdate) SetDeletedAt(t time.Time) *StudentCheckoutUpdate {
+	scu.mutation.SetDeletedAt(t)
+	return scu
+}
+
 // Mutation returns the StudentCheckoutMutation object of the builder.
 func (scu *StudentCheckoutUpdate) Mutation() *StudentCheckoutMutation {
 	return scu.mutation
@@ -73,6 +79,10 @@ func (scu *StudentCheckoutUpdate) defaults() {
 		v := studentcheckout.UpdateDefaultUpdatedAt()
 		scu.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := scu.mutation.DeletedAt(); !ok {
+		v := studentcheckout.UpdateDefaultDeletedAt()
+		scu.mutation.SetDeletedAt(v)
+	}
 }
 
 func (scu *StudentCheckoutUpdate) sqlSave(ctx context.Context) (n int, err error) {
@@ -86,6 +96,9 @@ func (scu *StudentCheckoutUpdate) sqlSave(ctx context.Context) (n int, err error
 	}
 	if value, ok := scu.mutation.UpdatedAt(); ok {
 		_spec.SetField(studentcheckout.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := scu.mutation.DeletedAt(); ok {
+		_spec.SetField(studentcheckout.FieldDeletedAt, field.TypeTime, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, scu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -110,6 +123,12 @@ type StudentCheckoutUpdateOne struct {
 // SetUpdatedAt sets the "updated_at" field.
 func (scuo *StudentCheckoutUpdateOne) SetUpdatedAt(t time.Time) *StudentCheckoutUpdateOne {
 	scuo.mutation.SetUpdatedAt(t)
+	return scuo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (scuo *StudentCheckoutUpdateOne) SetDeletedAt(t time.Time) *StudentCheckoutUpdateOne {
+	scuo.mutation.SetDeletedAt(t)
 	return scuo
 }
 
@@ -165,6 +184,10 @@ func (scuo *StudentCheckoutUpdateOne) defaults() {
 		v := studentcheckout.UpdateDefaultUpdatedAt()
 		scuo.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := scuo.mutation.DeletedAt(); !ok {
+		v := studentcheckout.UpdateDefaultDeletedAt()
+		scuo.mutation.SetDeletedAt(v)
+	}
 }
 
 func (scuo *StudentCheckoutUpdateOne) sqlSave(ctx context.Context) (_node *StudentCheckout, err error) {
@@ -195,6 +218,9 @@ func (scuo *StudentCheckoutUpdateOne) sqlSave(ctx context.Context) (_node *Stude
 	}
 	if value, ok := scuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(studentcheckout.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := scuo.mutation.DeletedAt(); ok {
+		_spec.SetField(studentcheckout.FieldDeletedAt, field.TypeTime, value)
 	}
 	_node = &StudentCheckout{config: scuo.config}
 	_spec.Assign = _node.assignValues
