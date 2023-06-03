@@ -45,6 +45,7 @@ type StudentMutation struct {
 	first_name       *string
 	grade            *int16
 	addgrade         *int16
+	is_high_school   *bool
 	manavis_code     *string
 	clearedFields    map[string]struct{}
 	checkins         map[uuid.UUID]struct{}
@@ -398,6 +399,42 @@ func (m *StudentMutation) ResetGrade() {
 	m.addgrade = nil
 }
 
+// SetIsHighSchool sets the "is_high_school" field.
+func (m *StudentMutation) SetIsHighSchool(b bool) {
+	m.is_high_school = &b
+}
+
+// IsHighSchool returns the value of the "is_high_school" field in the mutation.
+func (m *StudentMutation) IsHighSchool() (r bool, exists bool) {
+	v := m.is_high_school
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsHighSchool returns the old "is_high_school" field's value of the Student entity.
+// If the Student object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StudentMutation) OldIsHighSchool(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsHighSchool is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsHighSchool requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsHighSchool: %w", err)
+	}
+	return oldValue.IsHighSchool, nil
+}
+
+// ResetIsHighSchool resets all changes to the "is_high_school" field.
+func (m *StudentMutation) ResetIsHighSchool() {
+	m.is_high_school = nil
+}
+
 // SetManavisCode sets the "manavis_code" field.
 func (m *StudentMutation) SetManavisCode(s string) {
 	m.manavis_code = &s
@@ -576,7 +613,7 @@ func (m *StudentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StudentMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, student.FieldCreatedAt)
 	}
@@ -594,6 +631,9 @@ func (m *StudentMutation) Fields() []string {
 	}
 	if m.grade != nil {
 		fields = append(fields, student.FieldGrade)
+	}
+	if m.is_high_school != nil {
+		fields = append(fields, student.FieldIsHighSchool)
 	}
 	if m.manavis_code != nil {
 		fields = append(fields, student.FieldManavisCode)
@@ -618,6 +658,8 @@ func (m *StudentMutation) Field(name string) (ent.Value, bool) {
 		return m.FirstName()
 	case student.FieldGrade:
 		return m.Grade()
+	case student.FieldIsHighSchool:
+		return m.IsHighSchool()
 	case student.FieldManavisCode:
 		return m.ManavisCode()
 	}
@@ -641,6 +683,8 @@ func (m *StudentMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldFirstName(ctx)
 	case student.FieldGrade:
 		return m.OldGrade(ctx)
+	case student.FieldIsHighSchool:
+		return m.OldIsHighSchool(ctx)
 	case student.FieldManavisCode:
 		return m.OldManavisCode(ctx)
 	}
@@ -693,6 +737,13 @@ func (m *StudentMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetGrade(v)
+		return nil
+	case student.FieldIsHighSchool:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsHighSchool(v)
 		return nil
 	case student.FieldManavisCode:
 		v, ok := value.(string)
@@ -782,6 +833,9 @@ func (m *StudentMutation) ResetField(name string) error {
 		return nil
 	case student.FieldGrade:
 		m.ResetGrade()
+		return nil
+	case student.FieldIsHighSchool:
+		m.ResetIsHighSchool()
 		return nil
 	case student.FieldManavisCode:
 		m.ResetManavisCode()

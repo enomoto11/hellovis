@@ -63,8 +63,12 @@ func init() {
 			return nil
 		}
 	}()
+	// studentDescIsHighSchool is the schema descriptor for is_high_school field.
+	studentDescIsHighSchool := studentFields[3].Descriptor()
+	// student.DefaultIsHighSchool holds the default value on creation for the is_high_school field.
+	student.DefaultIsHighSchool = studentDescIsHighSchool.Default.(bool)
 	// studentDescManavisCode is the schema descriptor for manavis_code field.
-	studentDescManavisCode := studentFields[3].Descriptor()
+	studentDescManavisCode := studentFields[4].Descriptor()
 	// student.ManavisCodeValidator is a validator for the "manavis_code" field. It is called by the builders before save.
 	student.ManavisCodeValidator = studentDescManavisCode.Validators[0].(func(string) error)
 	// studentDescID is the schema descriptor for id field.

@@ -27,6 +27,8 @@ const (
 	FieldFirstName = "first_name"
 	// FieldGrade holds the string denoting the grade field in the database.
 	FieldGrade = "grade"
+	// FieldIsHighSchool holds the string denoting the is_high_school field in the database.
+	FieldIsHighSchool = "is_high_school"
 	// FieldManavisCode holds the string denoting the manavis_code field in the database.
 	FieldManavisCode = "manavis_code"
 	// EdgeCheckins holds the string denoting the checkins edge name in mutations.
@@ -60,6 +62,7 @@ var Columns = []string{
 	FieldLastName,
 	FieldFirstName,
 	FieldGrade,
+	FieldIsHighSchool,
 	FieldManavisCode,
 }
 
@@ -88,6 +91,8 @@ var (
 	FirstNameValidator func(string) error
 	// GradeValidator is a validator for the "grade" field. It is called by the builders before save.
 	GradeValidator func(int16) error
+	// DefaultIsHighSchool holds the default value on creation for the "is_high_school" field.
+	DefaultIsHighSchool bool
 	// ManavisCodeValidator is a validator for the "manavis_code" field. It is called by the builders before save.
 	ManavisCodeValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
@@ -130,6 +135,11 @@ func ByFirstName(opts ...sql.OrderTermOption) OrderOption {
 // ByGrade orders the results by the grade field.
 func ByGrade(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldGrade, opts...).ToFunc()
+}
+
+// ByIsHighSchool orders the results by the is_high_school field.
+func ByIsHighSchool(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsHighSchool, opts...).ToFunc()
 }
 
 // ByManavisCode orders the results by the manavis_code field.

@@ -86,6 +86,11 @@ func Grade(v int16) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldGrade, v))
 }
 
+// IsHighSchool applies equality check predicate on the "is_high_school" field. It's identical to IsHighSchoolEQ.
+func IsHighSchool(v bool) predicate.Student {
+	return predicate.Student(sql.FieldEQ(FieldIsHighSchool, v))
+}
+
 // ManavisCode applies equality check predicate on the "manavis_code" field. It's identical to ManavisCodeEQ.
 func ManavisCode(v string) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldManavisCode, v))
@@ -379,6 +384,16 @@ func GradeLT(v int16) predicate.Student {
 // GradeLTE applies the LTE predicate on the "grade" field.
 func GradeLTE(v int16) predicate.Student {
 	return predicate.Student(sql.FieldLTE(FieldGrade, v))
+}
+
+// IsHighSchoolEQ applies the EQ predicate on the "is_high_school" field.
+func IsHighSchoolEQ(v bool) predicate.Student {
+	return predicate.Student(sql.FieldEQ(FieldIsHighSchool, v))
+}
+
+// IsHighSchoolNEQ applies the NEQ predicate on the "is_high_school" field.
+func IsHighSchoolNEQ(v bool) predicate.Student {
+	return predicate.Student(sql.FieldNEQ(FieldIsHighSchool, v))
 }
 
 // ManavisCodeEQ applies the EQ predicate on the "manavis_code" field.

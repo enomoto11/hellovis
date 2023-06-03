@@ -75,6 +75,20 @@ func (sc *StudentCreate) SetGrade(i int16) *StudentCreate {
 	return sc
 }
 
+// SetIsHighSchool sets the "is_high_school" field.
+func (sc *StudentCreate) SetIsHighSchool(b bool) *StudentCreate {
+	sc.mutation.SetIsHighSchool(b)
+	return sc
+}
+
+// SetNillableIsHighSchool sets the "is_high_school" field if the given value is not nil.
+func (sc *StudentCreate) SetNillableIsHighSchool(b *bool) *StudentCreate {
+	if b != nil {
+		sc.SetIsHighSchool(*b)
+	}
+	return sc
+}
+
 // SetManavisCode sets the "manavis_code" field.
 func (sc *StudentCreate) SetManavisCode(s string) *StudentCreate {
 	sc.mutation.SetManavisCode(s)
@@ -168,6 +182,10 @@ func (sc *StudentCreate) defaults() {
 		v := student.DefaultUpdatedAt()
 		sc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := sc.mutation.IsHighSchool(); !ok {
+		v := student.DefaultIsHighSchool
+		sc.mutation.SetIsHighSchool(v)
+	}
 	if _, ok := sc.mutation.ID(); !ok {
 		v := student.DefaultID()
 		sc.mutation.SetID(v)
@@ -208,6 +226,9 @@ func (sc *StudentCreate) check() error {
 		if err := student.GradeValidator(v); err != nil {
 			return &ValidationError{Name: "grade", err: fmt.Errorf(`ent: validator failed for field "Student.grade": %w`, err)}
 		}
+	}
+	if _, ok := sc.mutation.IsHighSchool(); !ok {
+		return &ValidationError{Name: "is_high_school", err: errors.New(`ent: missing required field "Student.is_high_school"`)}
 	}
 	if _, ok := sc.mutation.ManavisCode(); !ok {
 		return &ValidationError{Name: "manavis_code", err: errors.New(`ent: missing required field "Student.manavis_code"`)}
@@ -275,6 +296,10 @@ func (sc *StudentCreate) createSpec() (*Student, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.Grade(); ok {
 		_spec.SetField(student.FieldGrade, field.TypeInt16, value)
 		_node.Grade = value
+	}
+	if value, ok := sc.mutation.IsHighSchool(); ok {
+		_spec.SetField(student.FieldIsHighSchool, field.TypeBool, value)
+		_node.IsHighSchool = value
 	}
 	if value, ok := sc.mutation.ManavisCode(); ok {
 		_spec.SetField(student.FieldManavisCode, field.TypeString, value)

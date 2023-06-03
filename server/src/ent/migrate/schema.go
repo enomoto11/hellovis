@@ -17,6 +17,7 @@ var (
 		{Name: "last_name", Type: field.TypeString},
 		{Name: "first_name", Type: field.TypeString},
 		{Name: "grade", Type: field.TypeInt16},
+		{Name: "is_high_school", Type: field.TypeBool, Default: true},
 		{Name: "manavis_code", Type: field.TypeString, Unique: true},
 	}
 	// StudentsTable holds the schema information for the "students" table.

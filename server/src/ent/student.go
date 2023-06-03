@@ -30,6 +30,8 @@ type Student struct {
 	FirstName string `json:"first_name,omitempty"`
 	// Grade holds the value of the "grade" field.
 	Grade int16 `json:"grade,omitempty"`
+	// IsHighSchool holds the value of the "is_high_school" field.
+	IsHighSchool bool `json:"is_high_school,omitempty"`
 	// ManavisCode holds the value of the "manavis_code" field.
 	ManavisCode string `json:"manavis_code,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -72,6 +74,8 @@ func (*Student) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case student.FieldIsHighSchool:
+			values[i] = new(sql.NullBool)
 		case student.FieldGrade:
 			values[i] = new(sql.NullInt64)
 		case student.FieldLastName, student.FieldFirstName, student.FieldManavisCode:
@@ -136,6 +140,12 @@ func (s *Student) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field grade", values[i])
 			} else if value.Valid {
 				s.Grade = int16(value.Int64)
+			}
+		case student.FieldIsHighSchool:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_high_school", values[i])
+			} else if value.Valid {
+				s.IsHighSchool = value.Bool
 			}
 		case student.FieldManavisCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -206,6 +216,9 @@ func (s *Student) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("grade=")
 	builder.WriteString(fmt.Sprintf("%v", s.Grade))
+	builder.WriteString(", ")
+	builder.WriteString("is_high_school=")
+	builder.WriteString(fmt.Sprintf("%v", s.IsHighSchool))
 	builder.WriteString(", ")
 	builder.WriteString("manavis_code=")
 	builder.WriteString(s.ManavisCode)

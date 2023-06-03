@@ -68,6 +68,20 @@ func (su *StudentUpdate) AddGrade(i int16) *StudentUpdate {
 	return su
 }
 
+// SetIsHighSchool sets the "is_high_school" field.
+func (su *StudentUpdate) SetIsHighSchool(b bool) *StudentUpdate {
+	su.mutation.SetIsHighSchool(b)
+	return su
+}
+
+// SetNillableIsHighSchool sets the "is_high_school" field if the given value is not nil.
+func (su *StudentUpdate) SetNillableIsHighSchool(b *bool) *StudentUpdate {
+	if b != nil {
+		su.SetIsHighSchool(*b)
+	}
+	return su
+}
+
 // SetManavisCode sets the "manavis_code" field.
 func (su *StudentUpdate) SetManavisCode(s string) *StudentUpdate {
 	su.mutation.SetManavisCode(s)
@@ -246,6 +260,9 @@ func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.AddedGrade(); ok {
 		_spec.AddField(student.FieldGrade, field.TypeInt16, value)
 	}
+	if value, ok := su.mutation.IsHighSchool(); ok {
+		_spec.SetField(student.FieldIsHighSchool, field.TypeBool, value)
+	}
 	if value, ok := su.mutation.ManavisCode(); ok {
 		_spec.SetField(student.FieldManavisCode, field.TypeString, value)
 	}
@@ -393,6 +410,20 @@ func (suo *StudentUpdateOne) SetGrade(i int16) *StudentUpdateOne {
 // AddGrade adds i to the "grade" field.
 func (suo *StudentUpdateOne) AddGrade(i int16) *StudentUpdateOne {
 	suo.mutation.AddGrade(i)
+	return suo
+}
+
+// SetIsHighSchool sets the "is_high_school" field.
+func (suo *StudentUpdateOne) SetIsHighSchool(b bool) *StudentUpdateOne {
+	suo.mutation.SetIsHighSchool(b)
+	return suo
+}
+
+// SetNillableIsHighSchool sets the "is_high_school" field if the given value is not nil.
+func (suo *StudentUpdateOne) SetNillableIsHighSchool(b *bool) *StudentUpdateOne {
+	if b != nil {
+		suo.SetIsHighSchool(*b)
+	}
 	return suo
 }
 
@@ -603,6 +634,9 @@ func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err e
 	}
 	if value, ok := suo.mutation.AddedGrade(); ok {
 		_spec.AddField(student.FieldGrade, field.TypeInt16, value)
+	}
+	if value, ok := suo.mutation.IsHighSchool(); ok {
+		_spec.SetField(student.FieldIsHighSchool, field.TypeBool, value)
 	}
 	if value, ok := suo.mutation.ManavisCode(); ok {
 		_spec.SetField(student.FieldManavisCode, field.TypeString, value)
