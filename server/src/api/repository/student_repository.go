@@ -6,6 +6,9 @@ import (
 	"hellovis/api/utils"
 	"hellovis/ent"
 	"hellovis/ent/student"
+	"hellovis/ent/studentcheckin"
+	"hellovis/ent/studentcheckout"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -15,6 +18,9 @@ type StudentRepository interface {
 	FindByID(ctx *context.Context, id uuid.UUID) (*model.Student, error)
 	FindByManavisCode(ctx *context.Context, manavisCode string) (*model.Student, error)
 	FindAllByGradeAndIsInHigh(ctx *context.Context, grade int, isInHigh bool) ([]*model.Student, error)
+	DeleteByManavisCode(ctx *context.Context, manavisCode string) error
+	FindAllWhoHasCheckedInWithDayOffest(ctx *context.Context, dayOffset int) ([]*model.Student, error)
+	FindAllWhoHasCheckedInAndHasNotCheckedOut(ctx *context.Context) ([]*model.Student, error)
 }
 
 type studentRepository struct {
@@ -68,6 +74,48 @@ func (sr *studentRepository) FindByManavisCode(ctx *context.Context, manavisCode
 func (sr *studentRepository) FindAllByGradeAndIsInHigh(ctx *context.Context, grade int, isInHigh bool) ([]*model.Student, error) {
 	entities, err := sr.client.Student.Query().
 		Where(student.GradeEQ(grade), student.IsHighSchoolEQ(isInHigh)).
+		All(*ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.MapSliceWithError(entities, newStudentFromEntity)
+}
+
+func (sr *studentRepository) DeleteByManavisCode(ctx *context.Context, manavisCode string) error {
+	_, err := sr.client.Student.
+		Delete().
+		Where(student.ManavisCodeEQ(manavisCode)).Exec(*ctx)
+
+	return err
+}
+
+// FindAllWhoHasCheckedInToday returns all students who have checked in today
+// あくまでその日にチェックインした生徒を返すだけで、その時刻の取得は別の責務に任せる
+// dayOffet 日前の来校済み生徒を返す
+func (sr *studentRepository) FindAllWhoHasCheckedInWithDayOffest(ctx *context.Context, dayOffset int) ([]*model.Student, error) {
+	today := time.Now()
+	startOfDay := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, today.Location()).AddDate(0, 0, (-1)*dayOffset)
+	endOfDay := startOfDay.AddDate(0, 0, 1)
+
+	entities, err := sr.client.Student.Query().
+		Where(student.HasCheckinsWith(studentcheckin.CheckinAtGTE(startOfDay), studentcheckin.CheckinAtLT(endOfDay))).
+		All(*ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.MapSliceWithError(entities, newStudentFromEntity)
+}
+
+func (sr *studentRepository) FindAllWhoHasCheckedInAndHasNotCheckedOut(ctx *context.Context) ([]*model.Student, error) {
+	today := time.Now()
+	startOfDay := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, today.Location())
+	endOfDay := startOfDay.AddDate(0, 0, 1)
+
+	entities, err := sr.client.Student.Query().
+		Where(student.HasCheckinsWith(studentcheckin.CheckinAtGTE(startOfDay), studentcheckin.CheckinAtLT(endOfDay))).
+		Where(student.HasCheckoutsWith(studentcheckout.CheckoutAtLT(startOfDay))).
 		All(*ctx)
 	if err != nil {
 		return nil, err
