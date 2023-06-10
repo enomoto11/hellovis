@@ -18,7 +18,7 @@ type StudentRepository interface {
 	FindByID(ctx *context.Context, id uuid.UUID) (*model.Student, error)
 	FindByManavisCode(ctx *context.Context, manavisCode string) (*model.Student, error)
 	FindAllByGradeAndIsInHigh(ctx *context.Context, grade int, isInHigh bool) ([]*model.Student, error)
-	DeleteByManavisCode(ctx *context.Context, manavisCode string) error
+	DeleteByIDAndManavisCode(ctx *context.Context, id uuid.UUID, manavisCode string) error
 	FindAllWhoHasCheckedInWithDayOffest(ctx *context.Context, dayOffset int) ([]*model.Student, error)
 	FindAllWhoHasCheckedInAndHasNotCheckedOut(ctx *context.Context) ([]*model.Student, error)
 }
@@ -82,10 +82,10 @@ func (sr *studentRepository) FindAllByGradeAndIsInHigh(ctx *context.Context, gra
 	return utils.MapSliceWithError(entities, newStudentFromEntity)
 }
 
-func (sr *studentRepository) DeleteByManavisCode(ctx *context.Context, manavisCode string) error {
+func (sr *studentRepository) DeleteByIDAndManavisCode(ctx *context.Context, id uuid.UUID, manavisCode string) error {
 	_, err := sr.client.Student.
 		Delete().
-		Where(student.ManavisCodeEQ(manavisCode)).Exec(*ctx)
+		Where(student.ManavisCodeEQ(manavisCode), student.IDEQ(id), student.DeletedAt(time.Time{})).Exec(*ctx)
 
 	return err
 }
