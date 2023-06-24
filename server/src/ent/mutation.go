@@ -40,7 +40,6 @@ type StudentMutation struct {
 	id               *uuid.UUID
 	created_at       *time.Time
 	updated_at       *time.Time
-	deleted_at       *time.Time
 	last_name        *string
 	first_name       *string
 	grade            *int
@@ -233,42 +232,6 @@ func (m *StudentMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err er
 // ResetUpdatedAt resets all changes to the "updated_at" field.
 func (m *StudentMutation) ResetUpdatedAt() {
 	m.updated_at = nil
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (m *StudentMutation) SetDeletedAt(t time.Time) {
-	m.deleted_at = &t
-}
-
-// DeletedAt returns the value of the "deleted_at" field in the mutation.
-func (m *StudentMutation) DeletedAt() (r time.Time, exists bool) {
-	v := m.deleted_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDeletedAt returns the old "deleted_at" field's value of the Student entity.
-// If the Student object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StudentMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
-	}
-	return oldValue.DeletedAt, nil
-}
-
-// ResetDeletedAt resets all changes to the "deleted_at" field.
-func (m *StudentMutation) ResetDeletedAt() {
-	m.deleted_at = nil
 }
 
 // SetLastName sets the "last_name" field.
@@ -613,15 +576,12 @@ func (m *StudentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StudentMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, student.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, student.FieldUpdatedAt)
-	}
-	if m.deleted_at != nil {
-		fields = append(fields, student.FieldDeletedAt)
 	}
 	if m.last_name != nil {
 		fields = append(fields, student.FieldLastName)
@@ -650,8 +610,6 @@ func (m *StudentMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case student.FieldUpdatedAt:
 		return m.UpdatedAt()
-	case student.FieldDeletedAt:
-		return m.DeletedAt()
 	case student.FieldLastName:
 		return m.LastName()
 	case student.FieldFirstName:
@@ -675,8 +633,6 @@ func (m *StudentMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCreatedAt(ctx)
 	case student.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
-	case student.FieldDeletedAt:
-		return m.OldDeletedAt(ctx)
 	case student.FieldLastName:
 		return m.OldLastName(ctx)
 	case student.FieldFirstName:
@@ -709,13 +665,6 @@ func (m *StudentMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
-		return nil
-	case student.FieldDeletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDeletedAt(v)
 		return nil
 	case student.FieldLastName:
 		v, ok := value.(string)
@@ -821,9 +770,6 @@ func (m *StudentMutation) ResetField(name string) error {
 		return nil
 	case student.FieldUpdatedAt:
 		m.ResetUpdatedAt()
-		return nil
-	case student.FieldDeletedAt:
-		m.ResetDeletedAt()
 		return nil
 	case student.FieldLastName:
 		m.ResetLastName()
@@ -962,7 +908,6 @@ type StudentCheckinMutation struct {
 	id             *uuid.UUID
 	created_at     *time.Time
 	updated_at     *time.Time
-	deleted_at     *time.Time
 	checkin_at     *time.Time
 	clearedFields  map[string]struct{}
 	student        *uuid.UUID
@@ -1148,42 +1093,6 @@ func (m *StudentCheckinMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (m *StudentCheckinMutation) SetDeletedAt(t time.Time) {
-	m.deleted_at = &t
-}
-
-// DeletedAt returns the value of the "deleted_at" field in the mutation.
-func (m *StudentCheckinMutation) DeletedAt() (r time.Time, exists bool) {
-	v := m.deleted_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDeletedAt returns the old "deleted_at" field's value of the StudentCheckin entity.
-// If the StudentCheckin object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StudentCheckinMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
-	}
-	return oldValue.DeletedAt, nil
-}
-
-// ResetDeletedAt resets all changes to the "deleted_at" field.
-func (m *StudentCheckinMutation) ResetDeletedAt() {
-	m.deleted_at = nil
-}
-
 // SetStudentID sets the "student_id" field.
 func (m *StudentCheckinMutation) SetStudentID(u uuid.UUID) {
 	m.student = &u
@@ -1316,15 +1225,12 @@ func (m *StudentCheckinMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StudentCheckinMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 4)
 	if m.created_at != nil {
 		fields = append(fields, studentcheckin.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, studentcheckin.FieldUpdatedAt)
-	}
-	if m.deleted_at != nil {
-		fields = append(fields, studentcheckin.FieldDeletedAt)
 	}
 	if m.student != nil {
 		fields = append(fields, studentcheckin.FieldStudentID)
@@ -1344,8 +1250,6 @@ func (m *StudentCheckinMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case studentcheckin.FieldUpdatedAt:
 		return m.UpdatedAt()
-	case studentcheckin.FieldDeletedAt:
-		return m.DeletedAt()
 	case studentcheckin.FieldStudentID:
 		return m.StudentID()
 	case studentcheckin.FieldCheckinAt:
@@ -1363,8 +1267,6 @@ func (m *StudentCheckinMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldCreatedAt(ctx)
 	case studentcheckin.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
-	case studentcheckin.FieldDeletedAt:
-		return m.OldDeletedAt(ctx)
 	case studentcheckin.FieldStudentID:
 		return m.OldStudentID(ctx)
 	case studentcheckin.FieldCheckinAt:
@@ -1391,13 +1293,6 @@ func (m *StudentCheckinMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
-		return nil
-	case studentcheckin.FieldDeletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDeletedAt(v)
 		return nil
 	case studentcheckin.FieldStudentID:
 		v, ok := value.(uuid.UUID)
@@ -1467,9 +1362,6 @@ func (m *StudentCheckinMutation) ResetField(name string) error {
 		return nil
 	case studentcheckin.FieldUpdatedAt:
 		m.ResetUpdatedAt()
-		return nil
-	case studentcheckin.FieldDeletedAt:
-		m.ResetDeletedAt()
 		return nil
 	case studentcheckin.FieldStudentID:
 		m.ResetStudentID()
@@ -1563,7 +1455,6 @@ type StudentCheckoutMutation struct {
 	id             *uuid.UUID
 	created_at     *time.Time
 	updated_at     *time.Time
-	deleted_at     *time.Time
 	checkout_at    *time.Time
 	clearedFields  map[string]struct{}
 	student        *uuid.UUID
@@ -1749,42 +1640,6 @@ func (m *StudentCheckoutMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (m *StudentCheckoutMutation) SetDeletedAt(t time.Time) {
-	m.deleted_at = &t
-}
-
-// DeletedAt returns the value of the "deleted_at" field in the mutation.
-func (m *StudentCheckoutMutation) DeletedAt() (r time.Time, exists bool) {
-	v := m.deleted_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDeletedAt returns the old "deleted_at" field's value of the StudentCheckout entity.
-// If the StudentCheckout object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StudentCheckoutMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
-	}
-	return oldValue.DeletedAt, nil
-}
-
-// ResetDeletedAt resets all changes to the "deleted_at" field.
-func (m *StudentCheckoutMutation) ResetDeletedAt() {
-	m.deleted_at = nil
-}
-
 // SetStudentID sets the "student_id" field.
 func (m *StudentCheckoutMutation) SetStudentID(u uuid.UUID) {
 	m.student = &u
@@ -1917,15 +1772,12 @@ func (m *StudentCheckoutMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StudentCheckoutMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 4)
 	if m.created_at != nil {
 		fields = append(fields, studentcheckout.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, studentcheckout.FieldUpdatedAt)
-	}
-	if m.deleted_at != nil {
-		fields = append(fields, studentcheckout.FieldDeletedAt)
 	}
 	if m.student != nil {
 		fields = append(fields, studentcheckout.FieldStudentID)
@@ -1945,8 +1797,6 @@ func (m *StudentCheckoutMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case studentcheckout.FieldUpdatedAt:
 		return m.UpdatedAt()
-	case studentcheckout.FieldDeletedAt:
-		return m.DeletedAt()
 	case studentcheckout.FieldStudentID:
 		return m.StudentID()
 	case studentcheckout.FieldCheckoutAt:
@@ -1964,8 +1814,6 @@ func (m *StudentCheckoutMutation) OldField(ctx context.Context, name string) (en
 		return m.OldCreatedAt(ctx)
 	case studentcheckout.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
-	case studentcheckout.FieldDeletedAt:
-		return m.OldDeletedAt(ctx)
 	case studentcheckout.FieldStudentID:
 		return m.OldStudentID(ctx)
 	case studentcheckout.FieldCheckoutAt:
@@ -1992,13 +1840,6 @@ func (m *StudentCheckoutMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
-		return nil
-	case studentcheckout.FieldDeletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDeletedAt(v)
 		return nil
 	case studentcheckout.FieldStudentID:
 		v, ok := value.(uuid.UUID)
@@ -2068,9 +1909,6 @@ func (m *StudentCheckoutMutation) ResetField(name string) error {
 		return nil
 	case studentcheckout.FieldUpdatedAt:
 		m.ResetUpdatedAt()
-		return nil
-	case studentcheckout.FieldDeletedAt:
-		m.ResetDeletedAt()
 		return nil
 	case studentcheckout.FieldStudentID:
 		m.ResetStudentID()

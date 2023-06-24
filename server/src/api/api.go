@@ -3,6 +3,9 @@ package api
 import (
 	"context"
 	"fmt"
+	"hellovis/api/controller"
+	"hellovis/api/repository"
+	"hellovis/api/service"
 	"hellovis/ent"
 	"hellovis/ent/migrate"
 	"log"
@@ -42,6 +45,11 @@ func InitAPI() (*gin.Engine, *ent.Client) {
 }
 
 func setUpControllers(entClient *ent.Client) []Controller {
+	studentRepo := repository.NewStudentRepository(entClient)
+	studentService := service.NewStudentService(studentRepo)
+	studentController := controller.NewStudentController(studentService)
 
-	return []Controller{}
+	return []Controller{
+		studentController,
+	}
 }

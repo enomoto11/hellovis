@@ -19,8 +19,6 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
-	FieldDeletedAt = "deleted_at"
 	// FieldStudentID holds the string denoting the student_id field in the database.
 	FieldStudentID = "student_id"
 	// FieldCheckoutAt holds the string denoting the checkout_at field in the database.
@@ -43,7 +41,6 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldDeletedAt,
 	FieldStudentID,
 	FieldCheckoutAt,
 }
@@ -65,8 +62,6 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// UpdateDefaultDeletedAt holds the default value on update for the "deleted_at" field.
-	UpdateDefaultDeletedAt func() time.Time
 	// DefaultCheckoutAt holds the default value on creation for the "checkout_at" field.
 	DefaultCheckoutAt func() time.Time
 	// DefaultID holds the default value on creation for the "id" field.
@@ -89,11 +84,6 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByDeletedAt orders the results by the deleted_at field.
-func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
 // ByStudentID orders the results by the student_id field.

@@ -50,12 +50,6 @@ func (scc *StudentCheckoutCreate) SetNillableUpdatedAt(t *time.Time) *StudentChe
 	return scc
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (scc *StudentCheckoutCreate) SetDeletedAt(t time.Time) *StudentCheckoutCreate {
-	scc.mutation.SetDeletedAt(t)
-	return scc
-}
-
 // SetStudentID sets the "student_id" field.
 func (scc *StudentCheckoutCreate) SetStudentID(u uuid.UUID) *StudentCheckoutCreate {
 	scc.mutation.SetStudentID(u)
@@ -156,9 +150,6 @@ func (scc *StudentCheckoutCreate) check() error {
 	if _, ok := scc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "StudentCheckout.updated_at"`)}
 	}
-	if _, ok := scc.mutation.DeletedAt(); !ok {
-		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "StudentCheckout.deleted_at"`)}
-	}
 	if _, ok := scc.mutation.StudentID(); !ok {
 		return &ValidationError{Name: "student_id", err: errors.New(`ent: missing required field "StudentCheckout.student_id"`)}
 	}
@@ -210,10 +201,6 @@ func (scc *StudentCheckoutCreate) createSpec() (*StudentCheckout, *sqlgraph.Crea
 	if value, ok := scc.mutation.UpdatedAt(); ok {
 		_spec.SetField(studentcheckout.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := scc.mutation.DeletedAt(); ok {
-		_spec.SetField(studentcheckout.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = value
 	}
 	if value, ok := scc.mutation.CheckoutAt(); ok {
 		_spec.SetField(studentcheckout.FieldCheckoutAt, field.TypeTime, value)

@@ -13,7 +13,6 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
-		{Name: "deleted_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "last_name", Type: field.TypeString},
 		{Name: "first_name", Type: field.TypeString},
 		{Name: "grade", Type: field.TypeInt},
@@ -31,7 +30,6 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
-		{Name: "deleted_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "checkin_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "student_id", Type: field.TypeUUID},
 	}
@@ -43,7 +41,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "student_checkins_students_checkins",
-				Columns:    []*schema.Column{StudentCheckinsColumns[5]},
+				Columns:    []*schema.Column{StudentCheckinsColumns[4]},
 				RefColumns: []*schema.Column{StudentsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -54,7 +52,6 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
-		{Name: "deleted_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "checkout_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "student_id", Type: field.TypeUUID},
 	}
@@ -66,7 +63,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "student_checkouts_students_checkouts",
-				Columns:    []*schema.Column{StudentCheckoutsColumns[5]},
+				Columns:    []*schema.Column{StudentCheckoutsColumns[4]},
 				RefColumns: []*schema.Column{StudentsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

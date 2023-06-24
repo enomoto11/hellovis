@@ -23,8 +23,6 @@ type StudentCheckout struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt time.Time `json:"deleted_at,omitempty"`
 	// StudentID holds the value of the "student_id" field.
 	StudentID uuid.UUID `json:"student_id,omitempty"`
 	// CheckoutAt holds the value of the "checkout_at" field.
@@ -62,7 +60,7 @@ func (*StudentCheckout) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case studentcheckout.FieldCreatedAt, studentcheckout.FieldUpdatedAt, studentcheckout.FieldDeletedAt, studentcheckout.FieldCheckoutAt:
+		case studentcheckout.FieldCreatedAt, studentcheckout.FieldUpdatedAt, studentcheckout.FieldCheckoutAt:
 			values[i] = new(sql.NullTime)
 		case studentcheckout.FieldID, studentcheckout.FieldStudentID:
 			values[i] = new(uuid.UUID)
@@ -98,12 +96,6 @@ func (sc *StudentCheckout) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				sc.UpdatedAt = value.Time
-			}
-		case studentcheckout.FieldDeletedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
-			} else if value.Valid {
-				sc.DeletedAt = value.Time
 			}
 		case studentcheckout.FieldStudentID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -163,9 +155,6 @@ func (sc *StudentCheckout) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(sc.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("deleted_at=")
-	builder.WriteString(sc.DeletedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("student_id=")
 	builder.WriteString(fmt.Sprintf("%v", sc.StudentID))

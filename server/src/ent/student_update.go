@@ -37,12 +37,6 @@ func (su *StudentUpdate) SetUpdatedAt(t time.Time) *StudentUpdate {
 	return su
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (su *StudentUpdate) SetDeletedAt(t time.Time) *StudentUpdate {
-	su.mutation.SetDeletedAt(t)
-	return su
-}
-
 // SetLastName sets the "last_name" field.
 func (su *StudentUpdate) SetLastName(s string) *StudentUpdate {
 	su.mutation.SetLastName(s)
@@ -199,10 +193,6 @@ func (su *StudentUpdate) defaults() {
 		v := student.UpdateDefaultUpdatedAt()
 		su.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := su.mutation.DeletedAt(); !ok {
-		v := student.UpdateDefaultDeletedAt()
-		su.mutation.SetDeletedAt(v)
-	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -244,9 +234,6 @@ func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.UpdatedAt(); ok {
 		_spec.SetField(student.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := su.mutation.DeletedAt(); ok {
-		_spec.SetField(student.FieldDeletedAt, field.TypeTime, value)
 	}
 	if value, ok := su.mutation.LastName(); ok {
 		_spec.SetField(student.FieldLastName, field.TypeString, value)
@@ -379,12 +366,6 @@ type StudentUpdateOne struct {
 // SetUpdatedAt sets the "updated_at" field.
 func (suo *StudentUpdateOne) SetUpdatedAt(t time.Time) *StudentUpdateOne {
 	suo.mutation.SetUpdatedAt(t)
-	return suo
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (suo *StudentUpdateOne) SetDeletedAt(t time.Time) *StudentUpdateOne {
-	suo.mutation.SetDeletedAt(t)
 	return suo
 }
 
@@ -557,10 +538,6 @@ func (suo *StudentUpdateOne) defaults() {
 		v := student.UpdateDefaultUpdatedAt()
 		suo.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := suo.mutation.DeletedAt(); !ok {
-		v := student.UpdateDefaultDeletedAt()
-		suo.mutation.SetDeletedAt(v)
-	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -619,9 +596,6 @@ func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err e
 	}
 	if value, ok := suo.mutation.UpdatedAt(); ok {
 		_spec.SetField(student.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := suo.mutation.DeletedAt(); ok {
-		_spec.SetField(student.FieldDeletedAt, field.TypeTime, value)
 	}
 	if value, ok := suo.mutation.LastName(); ok {
 		_spec.SetField(student.FieldLastName, field.TypeString, value)
