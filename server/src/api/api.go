@@ -44,6 +44,9 @@ func InitAPI() (*gin.Engine, *ent.Client) {
 	return router, entClient
 }
 
+/*
+@description Dependency Injection
+*/
 func setUpControllers(entClient *ent.Client) []Controller {
 	studentRepo := repository.NewStudentRepository(entClient)
 	studentService := service.NewStudentService(studentRepo)
