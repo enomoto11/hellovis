@@ -13,7 +13,7 @@ type StudentService interface {
 	Create(ctx context.Context, params *CreateStudentParams) (*model.Student, *InternalError)
 	FindByID(ctx context.Context, id uuid.UUID) (*model.Student, *InternalError)
 	FindByManavisCode(ctx context.Context, manavisCode string) (*model.Student, *InternalError)
-	FindAllByGradeAndIsInHigh(ctx context.Context, params *FindAllByGradeAndIsInHighParams) ([]*model.Student, *InternalError)
+	FindAllByGradeAndIsInHigh(ctx context.Context, params *FindAllByGradeAndIsInHighParams) (model.StudentPage, *InternalError)
 }
 
 type studentService struct {
@@ -39,11 +39,7 @@ type CreateStudentParams struct {
 type FindAllByGradeAndIsInHighParams struct {
 	Grade        int
 	IsHighSchool bool
-}
-
-type DeleteByManavisCodeParams struct {
-	ID          uuid.UUID
-	ManavisCode string
+	PageNumber   int
 }
 
 func (s *studentService) Create(ctx context.Context, params *CreateStudentParams) (*model.Student, *InternalError) {
@@ -85,11 +81,21 @@ func (s *studentService) FindByManavisCode(ctx context.Context, manavisCode stri
 	return result, nil
 }
 
-func (s *studentService) FindAllByGradeAndIsInHigh(ctx context.Context, params *FindAllByGradeAndIsInHighParams) ([]*model.Student, *InternalError) {
-	results, err := s.studentRepo.FindAllByGradeAndIsInHigh(&ctx, params.Grade, params.IsHighSchool)
+const (
+	pageSize          = 10
+	defaultPageNumber = 1
+)
+
+func (s *studentService) FindAllByGradeAndIsInHigh(ctx context.Context, params *FindAllByGradeAndIsInHighParams) (model.StudentPage, *InternalError) {
+	if params.PageNumber == 0 {
+		params.PageNumber = defaultPageNumber
+	}
+	pageable := model.NewPageable(params.PageNumber, pageSize)
+
+	result, err := s.studentRepo.FindAllByGradeAndIsInHigh(&ctx, params.Grade, params.IsHighSchool, pageable)
 	if err != nil {
 		return nil, NewInternalError(http.StatusInternalServerError, err)
 	}
 
-	return results, nil
+	return result, nil
 }

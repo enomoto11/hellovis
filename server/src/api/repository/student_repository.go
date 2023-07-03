@@ -17,7 +17,7 @@ type StudentRepository interface {
 	Create(ctx *context.Context, s *model.Student) (*model.Student, error)
 	FindByID(ctx *context.Context, id uuid.UUID) (*model.Student, error)
 	FindByManavisCode(ctx *context.Context, manavisCode string) (*model.Student, error)
-	FindAllByGradeAndIsInHigh(ctx *context.Context, grade int, isInHigh bool) ([]*model.Student, error)
+	FindAllByGradeAndIsInHigh(ctx *context.Context, grade int, isInHigh bool, pageable model.Pageable) (model.StudentPage, error)
 	FindAllWhoHasCheckedInWithDayOffest(ctx *context.Context, dayOffset int) ([]*model.Student, error)
 	FindAllWhoHasCheckedInAndHasNotCheckedOut(ctx *context.Context) ([]*model.Student, error)
 }
@@ -70,15 +70,36 @@ func (sr *studentRepository) FindByManavisCode(ctx *context.Context, manavisCode
 	return newStudentFromEntity(entity)
 }
 
-func (sr *studentRepository) FindAllByGradeAndIsInHigh(ctx *context.Context, grade int, isInHigh bool) ([]*model.Student, error) {
-	entities, err := sr.client.Student.Query().
-		Where(student.GradeEQ(grade), student.IsHighSchoolEQ(isInHigh)).
+func (sr *studentRepository) FindAllByGradeAndIsInHigh(ctx *context.Context, grade int, isInHigh bool, pageable model.Pageable) (model.StudentPage, error) {
+	builder := sr.client.Student.Query().
+		Where(student.GradeEQ(grade), student.IsHighSchoolEQ(isInHigh))
+
+		// 合計数取得
+	total, totalErr := builder.Count(*ctx)
+	if totalErr != nil {
+		return nil, totalErr
+	}
+
+	entities, err := builder.
+		Order(ent.Desc(student.FieldUpdatedAt)).
+		Offset(pageable.GetOffset()).
+		Limit(pageable.GetPageSize()).
 		All(*ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return utils.MapSliceWithError(entities, newStudentFromEntity)
+	models, err := utils.MapSliceWithError(entities, newStudentFromEntity)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.NewPage(
+		models,
+		total,
+		pageable.GetPageNumber(),
+		pageable.GetPageSize(),
+	), nil
 }
 
 // FindAllWhoHasCheckedInToday returns all students who have checked in today

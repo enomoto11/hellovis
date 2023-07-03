@@ -26,10 +26,11 @@ func (c *studentController) Register(r gin.IRouter) {
 	r.POST("/students", c.createStudent)
 	r.GET("/students/:id", c.getStudentByID)
 	r.GET("/students/manavis-code", c.getStudentByManaVisCode)
+	r.GET("/students/grade/:grade", c.getAllByGradeAndIsInHigh)
 }
 
 func (c *studentController) createStudent(ctx *gin.Context) {
-	var payload studentCreateRequest
+	var payload studentCreatePayload
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -63,13 +64,13 @@ func (c *studentController) createStudent(ctx *gin.Context) {
 }
 
 func (c *studentController) getStudentByID(ctx *gin.Context) {
-	var payload studentGetByIDRequest
-	if payloadErr := ctx.ShouldBindUri(&payload); payloadErr != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": payloadErr.Error()})
+	var pathParams studentIDPathParams
+	if pathParamsErr := ctx.ShouldBindUri(&pathParams); pathParamsErr != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": pathParamsErr.Error()})
 		return
 	}
 
-	id, idErr := uuid.Parse(payload.ID)
+	id, idErr := uuid.Parse(pathParams.ID)
 	if idErr != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": idErr.Error()})
 		return
@@ -80,7 +81,7 @@ func (c *studentController) getStudentByID(ctx *gin.Context) {
 		ctx.JSON(err.HttpStatus(), gin.H{"error": err.Error()})
 		return
 	}
-	res := StudentResponse{
+	res := studentResponse{
 		ID:           result.GetID().String(),
 		FirstName:    result.GetFirstName(),
 		LastName:     result.GetLastName(),
@@ -93,7 +94,7 @@ func (c *studentController) getStudentByID(ctx *gin.Context) {
 }
 
 func (c *studentController) getStudentByManaVisCode(ctx *gin.Context) {
-	var payload studentGetByManaVisCodeRequest
+	var payload studentGetByManavisCodePayload
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -109,13 +110,75 @@ func (c *studentController) getStudentByManaVisCode(ctx *gin.Context) {
 		ctx.JSON(err.HttpStatus(), gin.H{"error": err.Error()})
 		return
 	}
-	res := StudentResponse{
+	res := studentResponse{
 		ID:           result.GetID().String(),
 		FirstName:    result.GetFirstName(),
 		LastName:     result.GetLastName(),
 		Grade:        result.GetGrade(),
 		ManavisCode:  result.GetManavisCode(),
 		IsHighSchool: result.GetIsInHighSchool(),
+	}
+
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (c *studentController) getAllByGradeAndIsInHigh(ctx *gin.Context) {
+	var pathParams studentsByGradeAndIsInHighPathParams
+	if pathParamsErr := ctx.ShouldBindUri(&pathParams); pathParamsErr != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": pathParamsErr.Error()})
+		return
+	}
+
+	var payload studentsByGradeAndIsInHighPayload
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var validate = validator.New()
+	if err := validate.Struct(payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	grade, gradeErr := strconv.Atoi(pathParams.Grade)
+	if gradeErr != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": gradeErr.Error()})
+		return
+	}
+
+	params := &service.FindAllByGradeAndIsInHighParams{
+		Grade:        grade,
+		IsHighSchool: *payload.IsHighSchool,
+		PageNumber:   payload.PageNumber,
+	}
+
+	results, err := c.studentService.FindAllByGradeAndIsInHigh(ctx, params)
+	if err != nil {
+		ctx.JSON(err.HttpStatus(), gin.H{"error": err.Error()})
+		return
+	}
+
+	var students []studentResponse
+
+	for _, result := range results.GetContents() {
+		student := studentResponse{
+			ID:           result.GetID().String(),
+			FirstName:    result.GetFirstName(),
+			LastName:     result.GetLastName(),
+			Grade:        result.GetGrade(),
+			ManavisCode:  result.GetManavisCode(),
+			IsHighSchool: result.GetIsInHighSchool(),
+		}
+		students = append(students, student)
+	}
+
+	res := &studentsResponse{
+		Students: students,
+		paginationResponse: paginationResponse{
+			Page:  results.GetPageNumber(),
+			Size:  results.GetPageSize(),
+			Total: results.GetTotalCount(),
+		},
 	}
 
 	ctx.JSON(http.StatusOK, res)
