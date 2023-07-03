@@ -46,7 +46,7 @@ func (c *studentController) createStudent(ctx *gin.Context) {
 		FirstName:    payload.FirstName,
 		LastName:     payload.LastName,
 		Grade:        grade,
-		IsHighSchool: payload.IsHighSchool,
+		IsHighSchool: *payload.IsHighSchool,
 		ManavisCode:  payload.ManavisCode,
 	}
 	_, err := c.studentService.Create(ctx, params)
