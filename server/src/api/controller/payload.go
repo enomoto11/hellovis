@@ -22,5 +22,5 @@ type studentsByGradeAndIsInHighPayload struct {
 }
 
 type studentsByGradeAndIsInHighPathParams struct {
-	Grade string `json:"grade" binding:"required" example:"200828"`
+	Grade string `uri:"grade" binding:"required" example:"200828"`
 }
