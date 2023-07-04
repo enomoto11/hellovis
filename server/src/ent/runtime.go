@@ -7,6 +7,7 @@ import (
 	"hellovis/ent/student"
 	"hellovis/ent/studentcheckin"
 	"hellovis/ent/studentcheckout"
+	"hellovis/ent/user"
 	"time"
 
 	"github.com/google/uuid"
@@ -121,4 +122,50 @@ func init() {
 	studentcheckoutDescID := studentcheckoutMixinFields1[0].Descriptor()
 	// studentcheckout.DefaultID holds the default value on creation for the id field.
 	studentcheckout.DefaultID = studentcheckoutDescID.Default.(func() uuid.UUID)
+	userFields := schema.User{}.Fields()
+	_ = userFields
+	// userDescLastName is the schema descriptor for last_name field.
+	userDescLastName := userFields[0].Descriptor()
+	// user.LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
+	user.LastNameValidator = userDescLastName.Validators[0].(func(string) error)
+	// userDescFirstName is the schema descriptor for first_name field.
+	userDescFirstName := userFields[1].Descriptor()
+	// user.FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
+	user.FirstNameValidator = userDescFirstName.Validators[0].(func(string) error)
+	// userDescPasswordHash is the schema descriptor for password_hash field.
+	userDescPasswordHash := userFields[2].Descriptor()
+	// user.PasswordHashValidator is a validator for the "password_hash" field. It is called by the builders before save.
+	user.PasswordHashValidator = func() func(string) error {
+		validators := userDescPasswordHash.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(password_hash string) error {
+			for _, fn := range fns {
+				if err := fn(password_hash); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// userDescEmail is the schema descriptor for email field.
+	userDescEmail := userFields[3].Descriptor()
+	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	user.EmailValidator = func() func(string) error {
+		validators := userDescEmail.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(email string) error {
+			for _, fn := range fns {
+				if err := fn(email); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 }

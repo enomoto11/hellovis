@@ -9,6 +9,7 @@ import (
 	"hellovis/ent/student"
 	"hellovis/ent/studentcheckin"
 	"hellovis/ent/studentcheckout"
+	"hellovis/ent/user"
 	"reflect"
 	"sync"
 
@@ -78,6 +79,7 @@ func checkColumn(table, column string) error {
 			student.Table:         student.ValidColumn,
 			studentcheckin.Table:  studentcheckin.ValidColumn,
 			studentcheckout.Table: studentcheckout.ValidColumn,
+			user.Table:            user.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

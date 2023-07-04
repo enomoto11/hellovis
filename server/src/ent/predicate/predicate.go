@@ -14,3 +14,6 @@ type StudentCheckin func(*sql.Selector)
 
 // StudentCheckout is the predicate function for studentcheckout builders.
 type StudentCheckout func(*sql.Selector)
+
+// User is the predicate function for user builders.
+type User func(*sql.Selector)
