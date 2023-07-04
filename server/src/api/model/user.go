@@ -101,6 +101,10 @@ func (u *User) GetEmail() string {
 	return u.email
 }
 
+func (u *User) GetPasswordHash() PasswordHash {
+	return u.passwordHash
+}
+
 func (u *User) GetSignInFailedCount() int8 {
 	return u.signInFailedCount
 }
