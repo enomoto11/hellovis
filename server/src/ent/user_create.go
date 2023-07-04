@@ -49,6 +49,34 @@ func (uc *UserCreate) SetNillableUpdatedAt(t *time.Time) *UserCreate {
 	return uc
 }
 
+// SetSignInFailedCount sets the "sign_in_failed_count" field.
+func (uc *UserCreate) SetSignInFailedCount(i int8) *UserCreate {
+	uc.mutation.SetSignInFailedCount(i)
+	return uc
+}
+
+// SetNillableSignInFailedCount sets the "sign_in_failed_count" field if the given value is not nil.
+func (uc *UserCreate) SetNillableSignInFailedCount(i *int8) *UserCreate {
+	if i != nil {
+		uc.SetSignInFailedCount(*i)
+	}
+	return uc
+}
+
+// SetAccountLockedUntil sets the "account_locked_until" field.
+func (uc *UserCreate) SetAccountLockedUntil(t time.Time) *UserCreate {
+	uc.mutation.SetAccountLockedUntil(t)
+	return uc
+}
+
+// SetNillableAccountLockedUntil sets the "account_locked_until" field if the given value is not nil.
+func (uc *UserCreate) SetNillableAccountLockedUntil(t *time.Time) *UserCreate {
+	if t != nil {
+		uc.SetAccountLockedUntil(*t)
+	}
+	return uc
+}
+
 // SetLastName sets the "last_name" field.
 func (uc *UserCreate) SetLastName(s string) *UserCreate {
 	uc.mutation.SetLastName(s)
@@ -130,6 +158,10 @@ func (uc *UserCreate) defaults() {
 		v := user.DefaultUpdatedAt()
 		uc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := uc.mutation.SignInFailedCount(); !ok {
+		v := user.DefaultSignInFailedCount
+		uc.mutation.SetSignInFailedCount(v)
+	}
 	if _, ok := uc.mutation.ID(); !ok {
 		v := user.DefaultID()
 		uc.mutation.SetID(v)
@@ -143,6 +175,9 @@ func (uc *UserCreate) check() error {
 	}
 	if _, ok := uc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "User.updated_at"`)}
+	}
+	if _, ok := uc.mutation.SignInFailedCount(); !ok {
+		return &ValidationError{Name: "sign_in_failed_count", err: errors.New(`ent: missing required field "User.sign_in_failed_count"`)}
 	}
 	if _, ok := uc.mutation.LastName(); !ok {
 		return &ValidationError{Name: "last_name", err: errors.New(`ent: missing required field "User.last_name"`)}
@@ -218,6 +253,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := uc.mutation.SignInFailedCount(); ok {
+		_spec.SetField(user.FieldSignInFailedCount, field.TypeInt8, value)
+		_node.SignInFailedCount = value
+	}
+	if value, ok := uc.mutation.AccountLockedUntil(); ok {
+		_spec.SetField(user.FieldAccountLockedUntil, field.TypeTime, value)
+		_node.AccountLockedUntil = &value
 	}
 	if value, ok := uc.mutation.LastName(); ok {
 		_spec.SetField(user.FieldLastName, field.TypeString, value)

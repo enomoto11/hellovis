@@ -74,6 +74,8 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime(6)"}},
+		{Name: "sign_in_failed_count", Type: field.TypeInt8, Default: 0},
+		{Name: "account_locked_until", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"mysql": "datetime"}},
 		{Name: "last_name", Type: field.TypeString},
 		{Name: "first_name", Type: field.TypeString},
 		{Name: "password_hash", Type: field.TypeString, Size: 191},

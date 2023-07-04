@@ -34,6 +34,47 @@ func (uu *UserUpdate) SetUpdatedAt(t time.Time) *UserUpdate {
 	return uu
 }
 
+// SetSignInFailedCount sets the "sign_in_failed_count" field.
+func (uu *UserUpdate) SetSignInFailedCount(i int8) *UserUpdate {
+	uu.mutation.ResetSignInFailedCount()
+	uu.mutation.SetSignInFailedCount(i)
+	return uu
+}
+
+// SetNillableSignInFailedCount sets the "sign_in_failed_count" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableSignInFailedCount(i *int8) *UserUpdate {
+	if i != nil {
+		uu.SetSignInFailedCount(*i)
+	}
+	return uu
+}
+
+// AddSignInFailedCount adds i to the "sign_in_failed_count" field.
+func (uu *UserUpdate) AddSignInFailedCount(i int8) *UserUpdate {
+	uu.mutation.AddSignInFailedCount(i)
+	return uu
+}
+
+// SetAccountLockedUntil sets the "account_locked_until" field.
+func (uu *UserUpdate) SetAccountLockedUntil(t time.Time) *UserUpdate {
+	uu.mutation.SetAccountLockedUntil(t)
+	return uu
+}
+
+// SetNillableAccountLockedUntil sets the "account_locked_until" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableAccountLockedUntil(t *time.Time) *UserUpdate {
+	if t != nil {
+		uu.SetAccountLockedUntil(*t)
+	}
+	return uu
+}
+
+// ClearAccountLockedUntil clears the value of the "account_locked_until" field.
+func (uu *UserUpdate) ClearAccountLockedUntil() *UserUpdate {
+	uu.mutation.ClearAccountLockedUntil()
+	return uu
+}
+
 // SetLastName sets the "last_name" field.
 func (uu *UserUpdate) SetLastName(s string) *UserUpdate {
 	uu.mutation.SetLastName(s)
@@ -139,6 +180,18 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := uu.mutation.SignInFailedCount(); ok {
+		_spec.SetField(user.FieldSignInFailedCount, field.TypeInt8, value)
+	}
+	if value, ok := uu.mutation.AddedSignInFailedCount(); ok {
+		_spec.AddField(user.FieldSignInFailedCount, field.TypeInt8, value)
+	}
+	if value, ok := uu.mutation.AccountLockedUntil(); ok {
+		_spec.SetField(user.FieldAccountLockedUntil, field.TypeTime, value)
+	}
+	if uu.mutation.AccountLockedUntilCleared() {
+		_spec.ClearField(user.FieldAccountLockedUntil, field.TypeTime)
+	}
 	if value, ok := uu.mutation.LastName(); ok {
 		_spec.SetField(user.FieldLastName, field.TypeString, value)
 	}
@@ -174,6 +227,47 @@ type UserUpdateOne struct {
 // SetUpdatedAt sets the "updated_at" field.
 func (uuo *UserUpdateOne) SetUpdatedAt(t time.Time) *UserUpdateOne {
 	uuo.mutation.SetUpdatedAt(t)
+	return uuo
+}
+
+// SetSignInFailedCount sets the "sign_in_failed_count" field.
+func (uuo *UserUpdateOne) SetSignInFailedCount(i int8) *UserUpdateOne {
+	uuo.mutation.ResetSignInFailedCount()
+	uuo.mutation.SetSignInFailedCount(i)
+	return uuo
+}
+
+// SetNillableSignInFailedCount sets the "sign_in_failed_count" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableSignInFailedCount(i *int8) *UserUpdateOne {
+	if i != nil {
+		uuo.SetSignInFailedCount(*i)
+	}
+	return uuo
+}
+
+// AddSignInFailedCount adds i to the "sign_in_failed_count" field.
+func (uuo *UserUpdateOne) AddSignInFailedCount(i int8) *UserUpdateOne {
+	uuo.mutation.AddSignInFailedCount(i)
+	return uuo
+}
+
+// SetAccountLockedUntil sets the "account_locked_until" field.
+func (uuo *UserUpdateOne) SetAccountLockedUntil(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetAccountLockedUntil(t)
+	return uuo
+}
+
+// SetNillableAccountLockedUntil sets the "account_locked_until" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableAccountLockedUntil(t *time.Time) *UserUpdateOne {
+	if t != nil {
+		uuo.SetAccountLockedUntil(*t)
+	}
+	return uuo
+}
+
+// ClearAccountLockedUntil clears the value of the "account_locked_until" field.
+func (uuo *UserUpdateOne) ClearAccountLockedUntil() *UserUpdateOne {
+	uuo.mutation.ClearAccountLockedUntil()
 	return uuo
 }
 
@@ -311,6 +405,18 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := uuo.mutation.SignInFailedCount(); ok {
+		_spec.SetField(user.FieldSignInFailedCount, field.TypeInt8, value)
+	}
+	if value, ok := uuo.mutation.AddedSignInFailedCount(); ok {
+		_spec.AddField(user.FieldSignInFailedCount, field.TypeInt8, value)
+	}
+	if value, ok := uuo.mutation.AccountLockedUntil(); ok {
+		_spec.SetField(user.FieldAccountLockedUntil, field.TypeTime, value)
+	}
+	if uuo.mutation.AccountLockedUntilCleared() {
+		_spec.ClearField(user.FieldAccountLockedUntil, field.TypeTime)
 	}
 	if value, ok := uuo.mutation.LastName(); ok {
 		_spec.SetField(user.FieldLastName, field.TypeString, value)

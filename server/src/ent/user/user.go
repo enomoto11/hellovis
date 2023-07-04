@@ -18,6 +18,10 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// FieldSignInFailedCount holds the string denoting the sign_in_failed_count field in the database.
+	FieldSignInFailedCount = "sign_in_failed_count"
+	// FieldAccountLockedUntil holds the string denoting the account_locked_until field in the database.
+	FieldAccountLockedUntil = "account_locked_until"
 	// FieldLastName holds the string denoting the last_name field in the database.
 	FieldLastName = "last_name"
 	// FieldFirstName holds the string denoting the first_name field in the database.
@@ -35,6 +39,8 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldSignInFailedCount,
+	FieldAccountLockedUntil,
 	FieldLastName,
 	FieldFirstName,
 	FieldPasswordHash,
@@ -58,6 +64,8 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// DefaultSignInFailedCount holds the default value on creation for the "sign_in_failed_count" field.
+	DefaultSignInFailedCount int8
 	// LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
 	LastNameValidator func(string) error
 	// FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
@@ -86,6 +94,16 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// BySignInFailedCount orders the results by the sign_in_failed_count field.
+func BySignInFailedCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSignInFailedCount, opts...).ToFunc()
+}
+
+// ByAccountLockedUntil orders the results by the account_locked_until field.
+func ByAccountLockedUntil(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAccountLockedUntil, opts...).ToFunc()
 }
 
 // ByLastName orders the results by the last_name field.

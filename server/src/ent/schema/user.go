@@ -32,5 +32,6 @@ func (User) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.TimeMixin{},
 		mixin.UUIDMixin{},
+		mixin.AccountLockMixin{},
 	}
 }

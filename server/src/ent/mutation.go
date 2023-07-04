@@ -1999,19 +1999,22 @@ func (m *StudentCheckoutMutation) ResetEdge(name string) error {
 // UserMutation represents an operation that mutates the User nodes in the graph.
 type UserMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uuid.UUID
-	created_at    *time.Time
-	updated_at    *time.Time
-	last_name     *string
-	first_name    *string
-	password_hash *string
-	email         *string
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*User, error)
-	predicates    []predicate.User
+	op                      Op
+	typ                     string
+	id                      *uuid.UUID
+	created_at              *time.Time
+	updated_at              *time.Time
+	sign_in_failed_count    *int8
+	addsign_in_failed_count *int8
+	account_locked_until    *time.Time
+	last_name               *string
+	first_name              *string
+	password_hash           *string
+	email                   *string
+	clearedFields           map[string]struct{}
+	done                    bool
+	oldValue                func(context.Context) (*User, error)
+	predicates              []predicate.User
 }
 
 var _ ent.Mutation = (*UserMutation)(nil)
@@ -2188,6 +2191,111 @@ func (m *UserMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error
 // ResetUpdatedAt resets all changes to the "updated_at" field.
 func (m *UserMutation) ResetUpdatedAt() {
 	m.updated_at = nil
+}
+
+// SetSignInFailedCount sets the "sign_in_failed_count" field.
+func (m *UserMutation) SetSignInFailedCount(i int8) {
+	m.sign_in_failed_count = &i
+	m.addsign_in_failed_count = nil
+}
+
+// SignInFailedCount returns the value of the "sign_in_failed_count" field in the mutation.
+func (m *UserMutation) SignInFailedCount() (r int8, exists bool) {
+	v := m.sign_in_failed_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSignInFailedCount returns the old "sign_in_failed_count" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldSignInFailedCount(ctx context.Context) (v int8, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSignInFailedCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSignInFailedCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSignInFailedCount: %w", err)
+	}
+	return oldValue.SignInFailedCount, nil
+}
+
+// AddSignInFailedCount adds i to the "sign_in_failed_count" field.
+func (m *UserMutation) AddSignInFailedCount(i int8) {
+	if m.addsign_in_failed_count != nil {
+		*m.addsign_in_failed_count += i
+	} else {
+		m.addsign_in_failed_count = &i
+	}
+}
+
+// AddedSignInFailedCount returns the value that was added to the "sign_in_failed_count" field in this mutation.
+func (m *UserMutation) AddedSignInFailedCount() (r int8, exists bool) {
+	v := m.addsign_in_failed_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSignInFailedCount resets all changes to the "sign_in_failed_count" field.
+func (m *UserMutation) ResetSignInFailedCount() {
+	m.sign_in_failed_count = nil
+	m.addsign_in_failed_count = nil
+}
+
+// SetAccountLockedUntil sets the "account_locked_until" field.
+func (m *UserMutation) SetAccountLockedUntil(t time.Time) {
+	m.account_locked_until = &t
+}
+
+// AccountLockedUntil returns the value of the "account_locked_until" field in the mutation.
+func (m *UserMutation) AccountLockedUntil() (r time.Time, exists bool) {
+	v := m.account_locked_until
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccountLockedUntil returns the old "account_locked_until" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldAccountLockedUntil(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccountLockedUntil is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccountLockedUntil requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccountLockedUntil: %w", err)
+	}
+	return oldValue.AccountLockedUntil, nil
+}
+
+// ClearAccountLockedUntil clears the value of the "account_locked_until" field.
+func (m *UserMutation) ClearAccountLockedUntil() {
+	m.account_locked_until = nil
+	m.clearedFields[user.FieldAccountLockedUntil] = struct{}{}
+}
+
+// AccountLockedUntilCleared returns if the "account_locked_until" field was cleared in this mutation.
+func (m *UserMutation) AccountLockedUntilCleared() bool {
+	_, ok := m.clearedFields[user.FieldAccountLockedUntil]
+	return ok
+}
+
+// ResetAccountLockedUntil resets all changes to the "account_locked_until" field.
+func (m *UserMutation) ResetAccountLockedUntil() {
+	m.account_locked_until = nil
+	delete(m.clearedFields, user.FieldAccountLockedUntil)
 }
 
 // SetLastName sets the "last_name" field.
@@ -2368,12 +2476,18 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, user.FieldUpdatedAt)
+	}
+	if m.sign_in_failed_count != nil {
+		fields = append(fields, user.FieldSignInFailedCount)
+	}
+	if m.account_locked_until != nil {
+		fields = append(fields, user.FieldAccountLockedUntil)
 	}
 	if m.last_name != nil {
 		fields = append(fields, user.FieldLastName)
@@ -2399,6 +2513,10 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case user.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case user.FieldSignInFailedCount:
+		return m.SignInFailedCount()
+	case user.FieldAccountLockedUntil:
+		return m.AccountLockedUntil()
 	case user.FieldLastName:
 		return m.LastName()
 	case user.FieldFirstName:
@@ -2420,6 +2538,10 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldCreatedAt(ctx)
 	case user.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case user.FieldSignInFailedCount:
+		return m.OldSignInFailedCount(ctx)
+	case user.FieldAccountLockedUntil:
+		return m.OldAccountLockedUntil(ctx)
 	case user.FieldLastName:
 		return m.OldLastName(ctx)
 	case user.FieldFirstName:
@@ -2450,6 +2572,20 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
+		return nil
+	case user.FieldSignInFailedCount:
+		v, ok := value.(int8)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSignInFailedCount(v)
+		return nil
+	case user.FieldAccountLockedUntil:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccountLockedUntil(v)
 		return nil
 	case user.FieldLastName:
 		v, ok := value.(string)
@@ -2486,13 +2622,21 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *UserMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addsign_in_failed_count != nil {
+		fields = append(fields, user.FieldSignInFailedCount)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case user.FieldSignInFailedCount:
+		return m.AddedSignInFailedCount()
+	}
 	return nil, false
 }
 
@@ -2501,6 +2645,13 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *UserMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case user.FieldSignInFailedCount:
+		v, ok := value.(int8)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSignInFailedCount(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User numeric field %s", name)
 }
@@ -2508,7 +2659,11 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *UserMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(user.FieldAccountLockedUntil) {
+		fields = append(fields, user.FieldAccountLockedUntil)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2521,6 +2676,11 @@ func (m *UserMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
+	switch name {
+	case user.FieldAccountLockedUntil:
+		m.ClearAccountLockedUntil()
+		return nil
+	}
 	return fmt.Errorf("unknown User nullable field %s", name)
 }
 
@@ -2533,6 +2693,12 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case user.FieldSignInFailedCount:
+		m.ResetSignInFailedCount()
+		return nil
+	case user.FieldAccountLockedUntil:
+		m.ResetAccountLockedUntil()
 		return nil
 	case user.FieldLastName:
 		m.ResetLastName()

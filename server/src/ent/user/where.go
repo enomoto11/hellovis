@@ -65,6 +65,16 @@ func UpdatedAt(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
+// SignInFailedCount applies equality check predicate on the "sign_in_failed_count" field. It's identical to SignInFailedCountEQ.
+func SignInFailedCount(v int8) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldSignInFailedCount, v))
+}
+
+// AccountLockedUntil applies equality check predicate on the "account_locked_until" field. It's identical to AccountLockedUntilEQ.
+func AccountLockedUntil(v time.Time) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldAccountLockedUntil, v))
+}
+
 // LastName applies equality check predicate on the "last_name" field. It's identical to LastNameEQ.
 func LastName(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldLastName, v))
@@ -163,6 +173,96 @@ func UpdatedAtLT(v time.Time) predicate.User {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// SignInFailedCountEQ applies the EQ predicate on the "sign_in_failed_count" field.
+func SignInFailedCountEQ(v int8) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldSignInFailedCount, v))
+}
+
+// SignInFailedCountNEQ applies the NEQ predicate on the "sign_in_failed_count" field.
+func SignInFailedCountNEQ(v int8) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldSignInFailedCount, v))
+}
+
+// SignInFailedCountIn applies the In predicate on the "sign_in_failed_count" field.
+func SignInFailedCountIn(vs ...int8) predicate.User {
+	return predicate.User(sql.FieldIn(FieldSignInFailedCount, vs...))
+}
+
+// SignInFailedCountNotIn applies the NotIn predicate on the "sign_in_failed_count" field.
+func SignInFailedCountNotIn(vs ...int8) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldSignInFailedCount, vs...))
+}
+
+// SignInFailedCountGT applies the GT predicate on the "sign_in_failed_count" field.
+func SignInFailedCountGT(v int8) predicate.User {
+	return predicate.User(sql.FieldGT(FieldSignInFailedCount, v))
+}
+
+// SignInFailedCountGTE applies the GTE predicate on the "sign_in_failed_count" field.
+func SignInFailedCountGTE(v int8) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldSignInFailedCount, v))
+}
+
+// SignInFailedCountLT applies the LT predicate on the "sign_in_failed_count" field.
+func SignInFailedCountLT(v int8) predicate.User {
+	return predicate.User(sql.FieldLT(FieldSignInFailedCount, v))
+}
+
+// SignInFailedCountLTE applies the LTE predicate on the "sign_in_failed_count" field.
+func SignInFailedCountLTE(v int8) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldSignInFailedCount, v))
+}
+
+// AccountLockedUntilEQ applies the EQ predicate on the "account_locked_until" field.
+func AccountLockedUntilEQ(v time.Time) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldAccountLockedUntil, v))
+}
+
+// AccountLockedUntilNEQ applies the NEQ predicate on the "account_locked_until" field.
+func AccountLockedUntilNEQ(v time.Time) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldAccountLockedUntil, v))
+}
+
+// AccountLockedUntilIn applies the In predicate on the "account_locked_until" field.
+func AccountLockedUntilIn(vs ...time.Time) predicate.User {
+	return predicate.User(sql.FieldIn(FieldAccountLockedUntil, vs...))
+}
+
+// AccountLockedUntilNotIn applies the NotIn predicate on the "account_locked_until" field.
+func AccountLockedUntilNotIn(vs ...time.Time) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldAccountLockedUntil, vs...))
+}
+
+// AccountLockedUntilGT applies the GT predicate on the "account_locked_until" field.
+func AccountLockedUntilGT(v time.Time) predicate.User {
+	return predicate.User(sql.FieldGT(FieldAccountLockedUntil, v))
+}
+
+// AccountLockedUntilGTE applies the GTE predicate on the "account_locked_until" field.
+func AccountLockedUntilGTE(v time.Time) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldAccountLockedUntil, v))
+}
+
+// AccountLockedUntilLT applies the LT predicate on the "account_locked_until" field.
+func AccountLockedUntilLT(v time.Time) predicate.User {
+	return predicate.User(sql.FieldLT(FieldAccountLockedUntil, v))
+}
+
+// AccountLockedUntilLTE applies the LTE predicate on the "account_locked_until" field.
+func AccountLockedUntilLTE(v time.Time) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldAccountLockedUntil, v))
+}
+
+// AccountLockedUntilIsNil applies the IsNil predicate on the "account_locked_until" field.
+func AccountLockedUntilIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldAccountLockedUntil))
+}
+
+// AccountLockedUntilNotNil applies the NotNil predicate on the "account_locked_until" field.
+func AccountLockedUntilNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldAccountLockedUntil))
 }
 
 // LastNameEQ applies the EQ predicate on the "last_name" field.

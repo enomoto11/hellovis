@@ -22,6 +22,10 @@ type User struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// SignInFailedCount holds the value of the "sign_in_failed_count" field.
+	SignInFailedCount int8 `json:"sign_in_failed_count,omitempty"`
+	// AccountLockedUntil holds the value of the "account_locked_until" field.
+	AccountLockedUntil *time.Time `json:"account_locked_until,omitempty"`
 	// LastName holds the value of the "last_name" field.
 	LastName string `json:"last_name,omitempty"`
 	// FirstName holds the value of the "first_name" field.
@@ -38,9 +42,11 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case user.FieldSignInFailedCount:
+			values[i] = new(sql.NullInt64)
 		case user.FieldLastName, user.FieldFirstName, user.FieldPasswordHash, user.FieldEmail:
 			values[i] = new(sql.NullString)
-		case user.FieldCreatedAt, user.FieldUpdatedAt:
+		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldAccountLockedUntil:
 			values[i] = new(sql.NullTime)
 		case user.FieldID:
 			values[i] = new(uuid.UUID)
@@ -76,6 +82,19 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				u.UpdatedAt = value.Time
+			}
+		case user.FieldSignInFailedCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field sign_in_failed_count", values[i])
+			} else if value.Valid {
+				u.SignInFailedCount = int8(value.Int64)
+			}
+		case user.FieldAccountLockedUntil:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field account_locked_until", values[i])
+			} else if value.Valid {
+				u.AccountLockedUntil = new(time.Time)
+				*u.AccountLockedUntil = value.Time
 			}
 		case user.FieldLastName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -142,6 +161,14 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(u.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("sign_in_failed_count=")
+	builder.WriteString(fmt.Sprintf("%v", u.SignInFailedCount))
+	builder.WriteString(", ")
+	if v := u.AccountLockedUntil; v != nil {
+		builder.WriteString("account_locked_until=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("last_name=")
 	builder.WriteString(u.LastName)

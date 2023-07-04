@@ -127,6 +127,8 @@ func init() {
 	_ = userMixinFields0
 	userMixinFields1 := userMixin[1].Fields()
 	_ = userMixinFields1
+	userMixinFields2 := userMixin[2].Fields()
+	_ = userMixinFields2
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescCreatedAt is the schema descriptor for created_at field.
@@ -139,6 +141,10 @@ func init() {
 	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// userDescSignInFailedCount is the schema descriptor for sign_in_failed_count field.
+	userDescSignInFailedCount := userMixinFields2[0].Descriptor()
+	// user.DefaultSignInFailedCount holds the default value on creation for the sign_in_failed_count field.
+	user.DefaultSignInFailedCount = userDescSignInFailedCount.Default.(int8)
 	// userDescLastName is the schema descriptor for last_name field.
 	userDescLastName := userFields[0].Descriptor()
 	// user.LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
