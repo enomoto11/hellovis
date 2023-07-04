@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"hellovis/ent/schema/mixin"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 )
@@ -23,4 +25,12 @@ func (User) Fields() []ent.Field {
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return nil
+}
+
+// Mixin of the User.
+func (User) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		mixin.TimeMixin{},
+		mixin.UUIDMixin{},
+	}
 }

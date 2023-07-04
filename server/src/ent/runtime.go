@@ -122,8 +122,23 @@ func init() {
 	studentcheckoutDescID := studentcheckoutMixinFields1[0].Descriptor()
 	// studentcheckout.DefaultID holds the default value on creation for the id field.
 	studentcheckout.DefaultID = studentcheckoutDescID.Default.(func() uuid.UUID)
+	userMixin := schema.User{}.Mixin()
+	userMixinFields0 := userMixin[0].Fields()
+	_ = userMixinFields0
+	userMixinFields1 := userMixin[1].Fields()
+	_ = userMixinFields1
 	userFields := schema.User{}.Fields()
 	_ = userFields
+	// userDescCreatedAt is the schema descriptor for created_at field.
+	userDescCreatedAt := userMixinFields0[0].Descriptor()
+	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
+	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
+	// userDescUpdatedAt is the schema descriptor for updated_at field.
+	userDescUpdatedAt := userMixinFields0[1].Descriptor()
+	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
+	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// userDescLastName is the schema descriptor for last_name field.
 	userDescLastName := userFields[0].Descriptor()
 	// user.LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
@@ -168,4 +183,8 @@ func init() {
 			return nil
 		}
 	}()
+	// userDescID is the schema descriptor for id field.
+	userDescID := userMixinFields1[0].Descriptor()
+	// user.DefaultID holds the default value on creation for the id field.
+	user.DefaultID = userDescID.Default.(func() uuid.UUID)
 }
