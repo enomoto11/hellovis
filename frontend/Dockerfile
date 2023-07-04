@@ -1,10 +1,10 @@
-# ビルド環境
-FROM node:18.16.0 as build
+# 開発環境
+FROM node:18.16.0 as development
 WORKDIR /app
 COPY package.json ./
 RUN yarn install
 COPY . ./
-RUN yarn build
+CMD ["yarn", "start"]
 
 # 本番環境
 FROM nginx:1.19.0-alpine as production
