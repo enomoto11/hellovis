@@ -14,6 +14,7 @@ type StudentService interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*model.Student, *InternalError)
 	FindByManavisCode(ctx context.Context, manavisCode string) (*model.Student, *InternalError)
 	FindAllByGradeAndIsInHigh(ctx context.Context, params *FindAllByGradeAndIsInHighParams) (model.StudentPage, *InternalError)
+	FindAllWhoHadCheckedInWithDayOffest(ctx context.Context, params FindAllWhoHadCheckedInWithDayOffestParams) ([]*model.Student, *InternalError)
 }
 
 type studentService struct {
@@ -40,6 +41,10 @@ type FindAllByGradeAndIsInHighParams struct {
 	Grade        int
 	IsHighSchool bool
 	PageNumber   int
+}
+
+type FindAllWhoHadCheckedInWithDayOffestParams struct {
+	DayOffset int
 }
 
 func (s *studentService) Create(ctx context.Context, params *CreateStudentParams) (*model.Student, *InternalError) {
@@ -98,4 +103,13 @@ func (s *studentService) FindAllByGradeAndIsInHigh(ctx context.Context, params *
 	}
 
 	return result, nil
+}
+
+func (c *studentService) FindAllWhoHadCheckedInWithDayOffest(ctx context.Context, params FindAllWhoHadCheckedInWithDayOffestParams) ([]*model.Student, *InternalError) {
+	results, err := c.studentRepo.FindAllWhoHadCheckedInWithDayOffest(&ctx, params.DayOffset)
+	if err != nil {
+		return nil, NewInternalError(http.StatusInternalServerError, err)
+	}
+
+	return results, nil
 }

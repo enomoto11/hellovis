@@ -27,6 +27,7 @@ func (c *studentController) Register(r gin.IRouter) {
 	r.GET("/students/:id", c.getStudentByID)
 	r.GET("/students/manavis-code", c.getStudentByManaVisCode)
 	r.GET("/students/grade/:grade", c.getAllByGradeAndIsInHigh)
+	r.GET("students/checked-in", c.getAllWhoHadCheckedInWithDayOffest)
 }
 
 func (c *studentController) createStudent(ctx *gin.Context) {
@@ -94,7 +95,7 @@ func (c *studentController) getStudentByID(ctx *gin.Context) {
 }
 
 func (c *studentController) getStudentByManaVisCode(ctx *gin.Context) {
-	var payload studentGetByManavisCodePayload
+	var payload studentByManavisCodePayload
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -179,6 +180,44 @@ func (c *studentController) getAllByGradeAndIsInHigh(ctx *gin.Context) {
 			Size:  results.GetPageSize(),
 			Total: results.GetTotalCount(),
 		},
+	}
+
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (c *studentController) getAllWhoHadCheckedInWithDayOffest(ctx *gin.Context) {
+	var payload studentsWhoHadCheckedInWithDayOffestPayload
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var validate = validator.New()
+	if err := validate.Struct(payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	params := service.FindAllWhoHadCheckedInWithDayOffestParams{
+		DayOffset: payload.DayOffset,
+	}
+
+	results, err := c.studentService.FindAllWhoHadCheckedInWithDayOffest(ctx, params)
+	if err != nil {
+		ctx.JSON(err.HttpStatus(), gin.H{"error": err.Error()})
+		return
+	}
+
+	var res []studentResponse
+	for _, result := range results {
+		student := studentResponse{
+			ID:           result.GetID().String(),
+			FirstName:    result.GetFirstName(),
+			LastName:     result.GetLastName(),
+			Grade:        result.GetGrade(),
+			ManavisCode:  result.GetManavisCode(),
+			IsHighSchool: result.GetIsInHighSchool(),
+		}
+		res = append(res, student)
 	}
 
 	ctx.JSON(http.StatusOK, res)

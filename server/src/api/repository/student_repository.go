@@ -18,8 +18,8 @@ type StudentRepository interface {
 	FindByID(ctx *context.Context, id uuid.UUID) (*model.Student, error)
 	FindByManavisCode(ctx *context.Context, manavisCode string) (*model.Student, error)
 	FindAllByGradeAndIsInHigh(ctx *context.Context, grade int, isInHigh bool, pageable model.Pageable) (model.StudentPage, error)
-	FindAllWhoHasCheckedInWithDayOffest(ctx *context.Context, dayOffset int) ([]*model.Student, error)
-	FindAllWhoHasCheckedInAndHasNotCheckedOut(ctx *context.Context) ([]*model.Student, error)
+	FindAllWhoHadCheckedInWithDayOffest(ctx *context.Context, dayOffset int) ([]*model.Student, error)
+	FindAllWhoHaveCheckedInAndNotCheckedOut(ctx *context.Context) ([]*model.Student, error)
 }
 
 type studentRepository struct {
@@ -105,7 +105,7 @@ func (sr *studentRepository) FindAllByGradeAndIsInHigh(ctx *context.Context, gra
 // FindAllWhoHasCheckedInToday returns all students who have checked in today
 // あくまでその日にチェックインした生徒を返すだけで、その時刻の取得は別の責務に任せる
 // dayOffet 日前の来校済み生徒を返す
-func (sr *studentRepository) FindAllWhoHasCheckedInWithDayOffest(ctx *context.Context, dayOffset int) ([]*model.Student, error) {
+func (sr *studentRepository) FindAllWhoHadCheckedInWithDayOffest(ctx *context.Context, dayOffset int) ([]*model.Student, error) {
 	today := time.Now()
 	startOfDay := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, today.Location()).AddDate(0, 0, (-1)*dayOffset)
 	endOfDay := startOfDay.AddDate(0, 0, 1)
@@ -120,7 +120,7 @@ func (sr *studentRepository) FindAllWhoHasCheckedInWithDayOffest(ctx *context.Co
 	return utils.MapSliceWithError(entities, newStudentFromEntity)
 }
 
-func (sr *studentRepository) FindAllWhoHasCheckedInAndHasNotCheckedOut(ctx *context.Context) ([]*model.Student, error) {
+func (sr *studentRepository) FindAllWhoHaveCheckedInAndNotCheckedOut(ctx *context.Context) ([]*model.Student, error) {
 	today := time.Now()
 	startOfDay := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, today.Location())
 	endOfDay := startOfDay.AddDate(0, 0, 1)
