@@ -1,5 +1,10 @@
 package controller
 
+type signInPayload struct {
+	Email    string `json:"email"    binding:"required" ja:"メールアドレス" example:"admin@menergia.co.jp"`
+	Password string `json:"password" binding:"required" ja:"パスワード"   example:"Pass#123"`
+}
+
 type studentCreatePayload struct {
 	FirstName    string `json:"first_name" binding:"required" example:"togo"`
 	LastName     string `json:"last_name" binding:"required" example:"enomoto"`
