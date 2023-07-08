@@ -1,56 +1,34 @@
-import { memo, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import {
   Navbar,
   SegmentedControl,
-  Text,
   createStyles,
   getStylesRef,
   rem,
 } from '@mantine/core';
 import {
-  IconShoppingCart,
-  IconLicense,
-  IconMessage2,
-  IconBellRinging,
-  IconMessages,
   IconFingerprint,
-  IconKey,
-  IconSettings,
-  Icon2fa,
   IconUsers,
   IconFileAnalytics,
-  IconDatabaseImport,
-  IconReceipt2,
   IconReceiptRefund,
   IconLogout,
-  IconSwitchHorizontal,
 } from '@tabler/icons-react';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const tabs = {
-  account: [
-    { link: '', label: 'Notifications', icon: IconBellRinging },
-    { link: '', label: 'Billing', icon: IconReceipt2 },
-    { link: '', label: 'Security', icon: IconFingerprint },
-    { link: '', label: 'SSH Keys', icon: IconKey },
-    { link: '', label: 'Databases', icon: IconDatabaseImport },
-    { link: '', label: 'Authentication', icon: Icon2fa },
-    { link: '', label: 'Other Settings', icon: IconSettings },
-  ],
+  account: [{ link: '', label: '登下校を管理', icon: IconFingerprint }],
   general: [
-    { link: '', label: 'Orders', icon: IconShoppingCart },
-    { link: '', label: 'Receipts', icon: IconLicense },
-    { link: '', label: 'Reviews', icon: IconMessage2 },
-    { link: '', label: 'Messages', icon: IconMessages },
-    { link: '', label: 'Customers', icon: IconUsers },
-    { link: '', label: 'Refunds', icon: IconReceiptRefund },
-    { link: '', label: 'Files', icon: IconFileAnalytics },
+    { link: '', label: '生徒管理', icon: IconUsers },
+    { link: '', label: '行事管理', icon: IconReceiptRefund },
+    { link: '', label: '来校記録', icon: IconFileAnalytics },
   ],
 };
 
+// TODO: buisiness logic と DOM の分離を行う
 export const NavbarSegmented = memo(() => {
   const { classes, cx } = useStyles();
   const [section, setSection] = useState<'account' | 'general'>('account');
-  const [active, setActive] = useState('Billing');
+  const [active, setActive] = useState('登下校を管理');
 
   const links = tabs[section].map((item) => (
     <a
@@ -69,27 +47,23 @@ export const NavbarSegmented = memo(() => {
     </a>
   ));
 
+  const { logout } = useAuth0();
+
+  const handleLoguout = useCallback(async () => {
+    await logout();
+  }, [logout]);
+
   return (
     <Navbar width={{ sm: 300 }} p="md" className={classes.navbar}>
       <Navbar.Section>
-        <Text
-          weight={500}
-          size="sm"
-          className={classes.title}
-          color="dimmed"
-          mb="xs"
-        >
-          bgluesticker@mantine.dev
-        </Text>
-
         <SegmentedControl
           value={section}
           onChange={(value: 'account' | 'general') => setSection(value)}
           transitionTimingFunction="ease"
           fullWidth
           data={[
-            { label: 'Account', value: 'account' },
-            { label: 'System', value: 'general' },
+            { label: 'マナビス生', value: 'account' },
+            { label: 'Administrator', value: 'general' },
           ]}
         />
       </Navbar.Section>
@@ -99,22 +73,9 @@ export const NavbarSegmented = memo(() => {
       </Navbar.Section>
 
       <Navbar.Section className={classes.footer}>
-        <a
-          href="#"
-          className={classes.link}
-          onClick={(event) => event.preventDefault()}
-        >
-          <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
-          <span>Change account</span>
-        </a>
-
-        <a
-          href="#"
-          className={classes.link}
-          onClick={(event) => event.preventDefault()}
-        >
+        <a className={classes.link} onClick={handleLoguout}>
           <IconLogout className={classes.linkIcon} stroke={1.5} />
-          <span>Logout</span>
+          <span>システムを終了する</span>
         </a>
       </Navbar.Section>
     </Navbar>
