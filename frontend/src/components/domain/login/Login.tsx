@@ -1,4 +1,4 @@
-import { PopupConfigOptions, PopupLoginOptions } from '@auth0/auth0-react';
+import { useAuth0 } from '@auth0/auth0-react';
 import {
   Paper,
   createStyles,
@@ -8,19 +8,10 @@ import {
 } from '@mantine/core';
 import { memo, useCallback } from 'react';
 
-interface Props {
-  loginWithPopup: (
-    // eslint-disable-next-line no-unused-vars
-    options?: PopupLoginOptions | undefined,
-    // eslint-disable-next-line no-unused-vars
-    config?: PopupConfigOptions | undefined,
-  ) => Promise<void>;
-}
-
-export const Login = memo((props: Props) => {
+export const Login = memo(() => {
   const { classes } = useStyles();
 
-  const params = useLogin(props);
+  const params = useLogin();
 
   return (
     <Paper className={classes.paper} radius="lg" p={30}>
@@ -50,12 +41,16 @@ const useStyles = createStyles((theme: MantineTheme) => ({
   },
 }));
 
-const useLogin = (props: Props) => {
-  const { loginWithPopup } = props;
+const useLogin = () => {
+  const { loginWithRedirect } = useAuth0();
 
-  const onClick = useCallback(() => {
-    loginWithPopup();
-  }, [loginWithPopup]);
+  const onClick = useCallback(async () => {
+    await loginWithRedirect({
+      appState: {
+        returnTo: '/',
+      },
+    });
+  }, [loginWithRedirect]);
 
   return {
     onClick,

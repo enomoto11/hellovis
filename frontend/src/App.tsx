@@ -6,13 +6,13 @@ import { NotFound } from './components/domain/not-found/NotFound';
 import { Route, Routes, BrowserRouter } from 'react-router-dom';
 
 function App() {
-  const { isAuthenticated, loginWithPopup } = useAuth0();
+  const { isAuthenticated } = useAuth0();
 
   return (
     <div className="App">
       <header className="App-header">
         {!isAuthenticated ? (
-          <Login loginWithPopup={loginWithPopup} />
+          <Login />
         ) : (
           <BrowserRouter>
             <Routes>
