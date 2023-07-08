@@ -1,3 +1,4 @@
+import { useAuth0 } from '@auth0/auth0-react';
 import {
   createStyles,
   Title,
@@ -29,7 +30,7 @@ export const NotFound = memo(() => {
       </Text>
       <Group position="center">
         <Button variant="subtle" size="md" {...params}>
-          Take me back to home page
+          ログアウト
         </Button>
       </Group>
     </Container>
@@ -37,12 +38,14 @@ export const NotFound = memo(() => {
 });
 
 const useNotFound = () => {
-  const redirectToHome = useCallback(() => {
-    window.location.href = '/search';
-  }, []);
+  const { logout } = useAuth0();
+
+  const onClick = useCallback(async () => {
+    await logout();
+  }, [logout]);
 
   return {
-    onClick: redirectToHome,
+    onClick,
   };
 };
 
