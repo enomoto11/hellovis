@@ -42,6 +42,20 @@ func (scu *StudentCheckoutUpdate) SetStudentID(u uuid.UUID) *StudentCheckoutUpda
 	return scu
 }
 
+// SetCheckoutAt sets the "checkout_at" field.
+func (scu *StudentCheckoutUpdate) SetCheckoutAt(t time.Time) *StudentCheckoutUpdate {
+	scu.mutation.SetCheckoutAt(t)
+	return scu
+}
+
+// SetNillableCheckoutAt sets the "checkout_at" field if the given value is not nil.
+func (scu *StudentCheckoutUpdate) SetNillableCheckoutAt(t *time.Time) *StudentCheckoutUpdate {
+	if t != nil {
+		scu.SetCheckoutAt(*t)
+	}
+	return scu
+}
+
 // SetStudent sets the "student" edge to the Student entity.
 func (scu *StudentCheckoutUpdate) SetStudent(s *Student) *StudentCheckoutUpdate {
 	return scu.SetStudentID(s.ID)
@@ -117,6 +131,9 @@ func (scu *StudentCheckoutUpdate) sqlSave(ctx context.Context) (n int, err error
 	if value, ok := scu.mutation.UpdatedAt(); ok {
 		_spec.SetField(studentcheckout.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := scu.mutation.CheckoutAt(); ok {
+		_spec.SetField(studentcheckout.FieldCheckoutAt, field.TypeTime, value)
+	}
 	if scu.mutation.StudentCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -175,6 +192,20 @@ func (scuo *StudentCheckoutUpdateOne) SetUpdatedAt(t time.Time) *StudentCheckout
 // SetStudentID sets the "student_id" field.
 func (scuo *StudentCheckoutUpdateOne) SetStudentID(u uuid.UUID) *StudentCheckoutUpdateOne {
 	scuo.mutation.SetStudentID(u)
+	return scuo
+}
+
+// SetCheckoutAt sets the "checkout_at" field.
+func (scuo *StudentCheckoutUpdateOne) SetCheckoutAt(t time.Time) *StudentCheckoutUpdateOne {
+	scuo.mutation.SetCheckoutAt(t)
+	return scuo
+}
+
+// SetNillableCheckoutAt sets the "checkout_at" field if the given value is not nil.
+func (scuo *StudentCheckoutUpdateOne) SetNillableCheckoutAt(t *time.Time) *StudentCheckoutUpdateOne {
+	if t != nil {
+		scuo.SetCheckoutAt(*t)
+	}
 	return scuo
 }
 
@@ -282,6 +313,9 @@ func (scuo *StudentCheckoutUpdateOne) sqlSave(ctx context.Context) (_node *Stude
 	}
 	if value, ok := scuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(studentcheckout.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := scuo.mutation.CheckoutAt(); ok {
+		_spec.SetField(studentcheckout.FieldCheckoutAt, field.TypeTime, value)
 	}
 	if scuo.mutation.StudentCleared() {
 		edge := &sqlgraph.EdgeSpec{
