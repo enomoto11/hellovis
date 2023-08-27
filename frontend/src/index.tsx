@@ -2,15 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import { Auth0Provider } from '@auth0/auth0-react';
-import { DOMAIN, CLIENT_ID } from './env/auth0.env';
+import { Auth0Provider } from './provider/Auth0provider';
 
 ReactDOM.render(
-  <Auth0Provider
-    domain={DOMAIN}
-    clientId={CLIENT_ID}
-    authorizationParams={{ redirect_uri: window.location.origin }}
-  >
+  <Auth0Provider>
     <React.StrictMode>
       <App />
     </React.StrictMode>
