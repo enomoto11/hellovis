@@ -21,7 +21,6 @@ func (StudentCheckout) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("student_id", uuid.UUID{}),
 		field.Time("checkout_at").
-			Immutable().
 			Default(time.Now).
 			SchemaType(map[string]string{
 				dialect.MySQL: "datetime(6)",

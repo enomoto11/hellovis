@@ -42,6 +42,20 @@ func (scu *StudentCheckinUpdate) SetStudentID(u uuid.UUID) *StudentCheckinUpdate
 	return scu
 }
 
+// SetCheckinAt sets the "checkin_at" field.
+func (scu *StudentCheckinUpdate) SetCheckinAt(t time.Time) *StudentCheckinUpdate {
+	scu.mutation.SetCheckinAt(t)
+	return scu
+}
+
+// SetNillableCheckinAt sets the "checkin_at" field if the given value is not nil.
+func (scu *StudentCheckinUpdate) SetNillableCheckinAt(t *time.Time) *StudentCheckinUpdate {
+	if t != nil {
+		scu.SetCheckinAt(*t)
+	}
+	return scu
+}
+
 // SetStudent sets the "student" edge to the Student entity.
 func (scu *StudentCheckinUpdate) SetStudent(s *Student) *StudentCheckinUpdate {
 	return scu.SetStudentID(s.ID)
@@ -117,6 +131,9 @@ func (scu *StudentCheckinUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if value, ok := scu.mutation.UpdatedAt(); ok {
 		_spec.SetField(studentcheckin.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := scu.mutation.CheckinAt(); ok {
+		_spec.SetField(studentcheckin.FieldCheckinAt, field.TypeTime, value)
+	}
 	if scu.mutation.StudentCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -175,6 +192,20 @@ func (scuo *StudentCheckinUpdateOne) SetUpdatedAt(t time.Time) *StudentCheckinUp
 // SetStudentID sets the "student_id" field.
 func (scuo *StudentCheckinUpdateOne) SetStudentID(u uuid.UUID) *StudentCheckinUpdateOne {
 	scuo.mutation.SetStudentID(u)
+	return scuo
+}
+
+// SetCheckinAt sets the "checkin_at" field.
+func (scuo *StudentCheckinUpdateOne) SetCheckinAt(t time.Time) *StudentCheckinUpdateOne {
+	scuo.mutation.SetCheckinAt(t)
+	return scuo
+}
+
+// SetNillableCheckinAt sets the "checkin_at" field if the given value is not nil.
+func (scuo *StudentCheckinUpdateOne) SetNillableCheckinAt(t *time.Time) *StudentCheckinUpdateOne {
+	if t != nil {
+		scuo.SetCheckinAt(*t)
+	}
 	return scuo
 }
 
@@ -282,6 +313,9 @@ func (scuo *StudentCheckinUpdateOne) sqlSave(ctx context.Context) (_node *Studen
 	}
 	if value, ok := scuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(studentcheckin.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := scuo.mutation.CheckinAt(); ok {
+		_spec.SetField(studentcheckin.FieldCheckinAt, field.TypeTime, value)
 	}
 	if scuo.mutation.StudentCleared() {
 		edge := &sqlgraph.EdgeSpec{

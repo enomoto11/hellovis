@@ -47,7 +47,7 @@ func NewStudentCheckoutManavisCode(manavisCode string) NewStudentCheckoutOption 
 	}
 }
 
-func NewStudentCheckooutCheckedOutAt(checkedOutAt time.Time) NewStudentCheckoutOption {
+func NewStudentCheckoutCheckedoutAt(checkedOutAt time.Time) NewStudentCheckoutOption {
 	return func(s *StudentCheckout) {
 		s.checkedOutAt = checkedOutAt
 	}
@@ -65,7 +65,7 @@ func (s *StudentCheckout) GetManavisCode() string {
 	return s.manavisCode
 }
 
-func (s *StudentCheckout) GetCheckedOutAt() time.Time {
+func (s *StudentCheckout) GetCheckedoutAt() time.Time {
 	return s.checkedOutAt
 }
 
@@ -97,7 +97,7 @@ func (sco *StudentCheckout) isManavisCodeValid() *ValidationError {
 	return nil
 }
 
-func (sco *StudentCheckout) isCheckedOutAtValid() *ValidationError {
+func (sco *StudentCheckout) isCheckedoutAtValid() *ValidationError {
 	if sco.checkedOutAt.IsZero() {
 		return NewValidationError("empty checked out at is not allowed")
 	}
@@ -115,7 +115,7 @@ func (s *StudentCheckout) validate() *ValidationErrors {
 	if err := s.isManavisCodeValid(); err != nil {
 		errors = append(errors, err)
 	}
-	if err := s.isCheckedOutAtValid(); err != nil {
+	if err := s.isCheckedoutAtValid(); err != nil {
 		errors = append(errors, err)
 	}
 

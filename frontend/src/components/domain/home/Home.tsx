@@ -1,5 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { memo } from 'react';
+import { Button } from '@mantine/core';
 
 export const Home = memo(() => {
   const { logout } = useAuth0();
@@ -7,13 +8,13 @@ export const Home = memo(() => {
   return (
     <div>
       <h1>Home</h1>
-      <button
+      <Button
         onClick={() => {
           logout();
         }}
       >
         Log out
-      </button>
+      </Button>
     </div>
   );
 });
