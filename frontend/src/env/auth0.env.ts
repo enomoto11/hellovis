@@ -14,6 +14,6 @@ export const CLIENT_ID_DEV = process.env.REACT_APP_DOMAIN_CLIENT_ID!;
  * 本番環境環境変数
  */
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-export const DOMAIN_PROD = process.env.REACT_APP_DOMAIN_DOMAIN_PROD!;
+export const DOMAIN_PROD = process.env.REACT_APP_DOMAIN_PRODUCTION!;
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-export const CLIENT_ID_PROD = process.env.REACT_APP_DOMAIN_CLIENT_ID_PROD!;
+export const CLIENT_ID_PROD = process.env.REACT_APP_CLIENT_ID_PRODUCTION!;
