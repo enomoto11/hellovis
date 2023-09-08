@@ -7,7 +7,6 @@ import {
   MantineTheme,
 } from '@mantine/core';
 import { memo, useCallback } from 'react';
-import { DOMAIN_DEV, DOMAIN_PROD } from '../../../env/auth0.env';
 
 export const Login = memo(() => {
   const { classes } = useStyles();
@@ -19,11 +18,6 @@ export const Login = memo(() => {
       <Title order={2} className={classes.title} align="center" mt="md" mb={50}>
         This is Hellovis.
       </Title>
-
-      <h1>domain</h1>
-
-      <h1>{DOMAIN_DEV || DOMAIN_PROD}</h1>
-
       <Button fullWidth mt="xl" radius="lg" size="xl" {...params}>
         Login
       </Button>
