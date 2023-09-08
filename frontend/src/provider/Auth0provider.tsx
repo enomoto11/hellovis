@@ -15,6 +15,8 @@ export const Auth0Provider = memo((props: Props) => {
   const DOMAIN = DOMAIN_DEV || DOMAIN_PROD;
   const CLIENT_ID = CLIENT_ID_DEV || CLIENT_ID_PROD;
 
+  console.log(DOMAIN);
+
   return (
     <Provider
       domain={DOMAIN}
