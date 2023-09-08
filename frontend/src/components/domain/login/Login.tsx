@@ -20,6 +20,8 @@ export const Login = memo(() => {
         This is Hellovis.
       </Title>
 
+      <h1>{DOMAIN_DEV || DOMAIN_PROD}</h1>
+
       <Button fullWidth mt="xl" radius="lg" size="xl" {...params}>
         Login
       </Button>
@@ -46,10 +48,6 @@ const useLogin = () => {
   const { loginWithRedirect } = useAuth0();
 
   const onClick = useCallback(async () => {
-    const DOMAIN = DOMAIN_DEV || DOMAIN_PROD;
-
-    console.log(DOMAIN);
-
     await loginWithRedirect({
       appState: {
         returnTo: '/',
