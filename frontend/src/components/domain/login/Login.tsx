@@ -7,6 +7,7 @@ import {
   MantineTheme,
 } from '@mantine/core';
 import { memo, useCallback } from 'react';
+import { DOMAIN_DEV, DOMAIN_PROD } from '../../../env/auth0.env';
 
 export const Login = memo(() => {
   const { classes } = useStyles();
@@ -45,6 +46,10 @@ const useLogin = () => {
   const { loginWithRedirect } = useAuth0();
 
   const onClick = useCallback(async () => {
+    const DOMAIN = DOMAIN_DEV || DOMAIN_PROD;
+
+    console.log(DOMAIN);
+
     await loginWithRedirect({
       appState: {
         returnTo: '/',
