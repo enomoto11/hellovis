@@ -41,7 +41,7 @@ const useNotFound = () => {
   const { logout } = useAuth0();
 
   const onClick = useCallback(async () => {
-    await logout();
+    logout();
   }, [logout]);
 
   return {
