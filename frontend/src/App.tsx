@@ -4,7 +4,7 @@ import { Login } from './components/domain/login/Login';
 import { Home } from './components/domain/home/Home';
 import { NotFound } from './components/domain/not-found/NotFound';
 import { Route, Routes, BrowserRouter } from 'react-router-dom';
-import { NavbarSegmented } from './components/base/side-bar/SideBar';
+import { SideBar } from './components/base/side-bar/SideBar';
 import { Flex } from '@mantine/core';
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
         direction="row"
         wrap="wrap"
       >
-        <NavbarSegmented />
+        <SideBar />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />

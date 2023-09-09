@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from 'react';
+import { memo } from 'react';
 import {
   Navbar,
   SegmentedControl,
@@ -6,65 +6,48 @@ import {
   getStylesRef,
   rem,
 } from '@mantine/core';
-import {
-  IconFingerprint,
-  IconUsers,
-  IconFileAnalytics,
-  IconReceiptRefund,
-  IconLogout,
-} from '@tabler/icons-react';
-import { useAuth0 } from '@auth0/auth0-react';
+import { IconLogout } from '@tabler/icons-react';
+import { tabs } from './const/tab';
+import { useSideBar } from './useSideBar';
 
-const tabs = {
-  account: [{ link: '', label: '登下校を管理', icon: IconFingerprint }],
-  general: [
-    { link: '', label: '生徒管理', icon: IconUsers },
-    { link: '', label: '行事管理', icon: IconReceiptRefund },
-    { link: '', label: '来校記録', icon: IconFileAnalytics },
-  ],
-};
-
-// TODO: buisiness logic と DOM の分離を行う
-export const NavbarSegmented = memo(() => {
+export const SideBar = memo(() => {
   const { classes, cx } = useStyles();
-  const [section, setSection] = useState<'account' | 'general'>('account');
-  const [active, setActive] = useState('登下校を管理');
+  const {
+    section,
+    active,
+    setActive,
+    logout,
+    segmentedControlData,
+    segmentedControlOnChange,
+  } = useSideBar();
 
-  const links = tabs[section].map((item) => (
+  const links = tabs[section].map((tab) => (
     <a
       className={cx(classes.link, {
-        [classes.linkActive]: item.label === active,
+        [classes.linkActive]: tab.label === active,
       })}
-      href={item.link}
-      key={item.label}
+      href={tab.link}
+      key={tab.label}
       onClick={(event) => {
         event.preventDefault();
-        setActive(item.label);
+        setActive(tab.label);
+        tab.onClick();
       }}
     >
-      <item.icon className={classes.linkIcon} stroke={1.5} />
-      <span>{item.label}</span>
+      <tab.icon className={classes.linkIcon} stroke={1.5} />
+      <span>{tab.label}</span>
     </a>
   ));
-
-  const { logout } = useAuth0();
-
-  const handleLoguout = useCallback(async () => {
-    await logout();
-  }, [logout]);
 
   return (
     <Navbar width={{ sm: 300 }} p="md" className={classes.navbar}>
       <Navbar.Section>
         <SegmentedControl
           value={section}
-          onChange={(value: 'account' | 'general') => setSection(value)}
+          onChange={segmentedControlOnChange}
           transitionTimingFunction="ease"
           fullWidth
-          data={[
-            { label: 'マナビス生', value: 'account' },
-            { label: 'Administrator', value: 'general' },
-          ]}
+          data={segmentedControlData}
         />
       </Navbar.Section>
 
@@ -73,7 +56,7 @@ export const NavbarSegmented = memo(() => {
       </Navbar.Section>
 
       <Navbar.Section className={classes.footer}>
-        <a className={classes.link} onClick={handleLoguout}>
+        <a className={classes.link} onClick={() => logout()}>
           <IconLogout className={classes.linkIcon} stroke={1.5} />
           <span>システムを終了する</span>
         </a>
