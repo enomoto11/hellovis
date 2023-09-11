@@ -11,6 +11,10 @@ export const useIPAddress = () => {
       .then((response) => response.json())
       .then((data) => {
         setIPAddress(data.ip);
+        // ---------------TODO: 確認用------------------------------
+        console.log(data.ip);
+        console.log(new IP().getWhiteList());
+        // ---------------TODO: 確認用------------------------------
       })
       .catch((error) => console.log(error));
   }, []);
