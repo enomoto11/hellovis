@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { ATTENDANCE_LABEL } from './const/label';
 import { ACCOUNT_TAB, GENERAL_TAB } from './const/tab';
-import { useAuth } from '../../../provider/Auth0provider';
+import { useAuth0 } from '@auth0/auth0-react';
 
 export const useSideBar = () => {
   const [section, setSection] = useState<
@@ -9,7 +9,7 @@ export const useSideBar = () => {
   >(ACCOUNT_TAB);
   const [active, setActive] = useState(ATTENDANCE_LABEL);
 
-  const authParams = useAuth();
+  const authParams = useAuth0();
 
   const segmentedControlData = useMemo(
     () => [

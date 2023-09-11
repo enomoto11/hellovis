@@ -6,7 +6,7 @@ import {
   MantineTheme,
 } from '@mantine/core';
 import { memo, useCallback } from 'react';
-import { useAuth } from '../../../provider/Auth0provider';
+import { useAuth0 } from '@auth0/auth0-react';
 
 export const Login = memo(() => {
   const { classes } = useStyles();
@@ -29,7 +29,7 @@ const useStyles = createStyles((theme: MantineTheme) => ({
   paper: {
     alignContent: 'center',
     width: 'calc(100% / 2)',
-    height: 'calc(100% / 3 *2)',
+    height: 'calc(100% / 3 )',
     minHeight: 600,
     maxWidth: 450,
   },
@@ -41,7 +41,7 @@ const useStyles = createStyles((theme: MantineTheme) => ({
 }));
 
 const useLogin = () => {
-  const authParams = useAuth();
+  const authParams = useAuth0();
 
   const onClick = useCallback(async () => {
     await authParams?.loginWithRedirect({

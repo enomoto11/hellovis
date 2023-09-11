@@ -1,9 +1,9 @@
 import { memo } from 'react';
 import { Button } from '@mantine/core';
-import { useAuth } from '../../../provider/Auth0provider';
+import { useAuth0 } from '@auth0/auth0-react';
 
 export const Home = memo(() => {
-  const authParams = useAuth();
+  const authParams = useAuth0();
 
   return (
     <div>

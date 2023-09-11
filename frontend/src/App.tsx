@@ -7,11 +7,21 @@ import { Route, Routes, BrowserRouter } from 'react-router-dom';
 import { SideBar } from './components/base/side-bar/SideBar';
 import { Flex } from '@mantine/core';
 import { Students } from './components/domain/general/students';
+import { useIPAccess } from './ip/useIPAddress';
+import { InvalidAccess } from './components/domain/invalid-access/InvalidAccess';
 
 function App() {
   const { isAuthenticated } = useAuth0();
 
-  return !isAuthenticated ? (
+  const { isValidAccess } = useIPAccess();
+
+  return !isValidAccess ? (
+    <div className="App">
+      <header className="App-header">
+        <InvalidAccess />
+      </header>
+    </div>
+  ) : !isAuthenticated ? (
     <div className="App">
       <header className="App-header">
         <Login />
