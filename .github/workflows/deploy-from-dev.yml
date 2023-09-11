@@ -1,0 +1,24 @@
+name: Auto Create PR from dev to main
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  createPullRequest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          branch: dev
+          title: "Automated PR from dev to main"
+          body: "Automated PR to keep main up-to-date with dev"
+          draft: false

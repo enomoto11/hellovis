@@ -1,4 +1,3 @@
-import { useAuth0 } from '@auth0/auth0-react';
 import {
   createStyles,
   Title,
@@ -9,6 +8,7 @@ import {
   rem,
 } from '@mantine/core';
 import { memo, useCallback } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 
 export const NotFound = memo(() => {
   const { classes } = useStyles();
@@ -38,11 +38,11 @@ export const NotFound = memo(() => {
 });
 
 const useNotFound = () => {
-  const { logout } = useAuth0();
+  const authParams = useAuth0();
 
   const onClick = useCallback(async () => {
-    logout();
-  }, [logout]);
+    authParams?.logout();
+  }, [authParams]);
 
   return {
     onClick,
