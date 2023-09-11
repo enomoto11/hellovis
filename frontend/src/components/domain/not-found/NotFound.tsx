@@ -8,7 +8,7 @@ import {
   rem,
 } from '@mantine/core';
 import { memo, useCallback } from 'react';
-import { useAuth } from '../../../provider/Auth0provider';
+import { useAuth0 } from '@auth0/auth0-react';
 
 export const NotFound = memo(() => {
   const { classes } = useStyles();
@@ -38,7 +38,7 @@ export const NotFound = memo(() => {
 });
 
 const useNotFound = () => {
-  const authParams = useAuth();
+  const authParams = useAuth0();
 
   const onClick = useCallback(async () => {
     authParams?.logout();
