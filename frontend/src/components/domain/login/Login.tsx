@@ -1,4 +1,3 @@
-import { useAuth0 } from '@auth0/auth0-react';
 import {
   Paper,
   createStyles,
@@ -7,6 +6,7 @@ import {
   MantineTheme,
 } from '@mantine/core';
 import { memo, useCallback } from 'react';
+import { useAuth } from '../../../provider/Auth0provider';
 
 export const Login = memo(() => {
   const { classes } = useStyles();
@@ -41,15 +41,15 @@ const useStyles = createStyles((theme: MantineTheme) => ({
 }));
 
 const useLogin = () => {
-  const { loginWithRedirect } = useAuth0();
+  const authParams = useAuth();
 
   const onClick = useCallback(async () => {
-    await loginWithRedirect({
+    await authParams?.loginWithRedirect({
       appState: {
         returnTo: '/',
       },
     });
-  }, [loginWithRedirect]);
+  }, [authParams]);
 
   return {
     onClick,

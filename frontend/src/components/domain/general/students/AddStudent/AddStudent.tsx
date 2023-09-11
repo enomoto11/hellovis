@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import {
   Text,
   Button,
@@ -7,20 +7,66 @@ import {
   Box,
   Group,
   Select,
+  Checkbox,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { AddStudentSchemaType } from './schema/AddStudent';
+import { AddStudentSchemaType, addStudentSchema } from './schema/AddStudent';
+import { useMutation } from 'react-query';
+import axios from 'axios';
 
 export const AddStudent = memo(() => {
   const form = useForm<AddStudentSchemaType>({
     initialValues: {
-      manavisCode: '',
-      firstName: '',
-      lastName: '',
-      grade: '',
+      manavisCode: '200828',
+      firstName: '東悟',
+      lastName: '榎本',
+      grade: '2',
       isHighSchool: true,
     },
   });
+
+  const [checked, setChecked] = useState(true);
+
+  const handleChangeCheckbox = useCallback(() => {
+    setChecked(!checked);
+  }, [checked]);
+
+  useEffect(() => {
+    form.setValues({
+      isHighSchool: checked,
+    });
+  }, [checked]);
+
+  // useMutaionを共通化する
+  const { mutate, isSuccess, isError } = useMutation(
+    (body: AddStudentSchemaType) => {
+      return axios.post('/students', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: {
+          first_name: body.firstName,
+          last_name: body.lastName,
+          grade: body.grade,
+          manavis_code: body.manavisCode,
+          is_high_school: body.isHighSchool,
+        },
+      });
+    },
+  );
+
+  const handleSubmit = useCallback(() => {
+    const body = addStudentSchema.parse(form.values);
+
+    mutate(body);
+    if (isSuccess) {
+      console.log('success');
+    }
+    if (isError) {
+      console.log('error');
+    }
+  }, []);
 
   return (
     // TODO: zod由来のバリデーションメッセージが表示できるようにする
@@ -28,7 +74,7 @@ export const AddStudent = memo(() => {
       <h1>🦄New Students🎉</h1>
       <Text fz="lg">新たに生徒を登録しましょう🤩</Text>
       <Box maw={300} mx="auto" p={40}>
-        <form onSubmit={form.onSubmit((values) => console.log(values))}>
+        <form>
           <TextInput
             pb={20}
             withAsterisk
@@ -65,7 +111,7 @@ export const AddStudent = memo(() => {
             ]}
             {...form.getInputProps('grade')}
           />
-          <Select
+          {/* <Select
             pb={20}
             withAsterisk
             required
@@ -74,12 +120,17 @@ export const AddStudent = memo(() => {
               { value: 'true', label: '高校生' },
               { value: 'false', label: '中学生' },
             ]}
-            defaultValue={'true'}
             {...form.getInputProps('isHighSchool')}
+          ></Select> */}
+
+          <Checkbox
+            label="高校生"
+            checked={checked}
+            onChange={handleChangeCheckbox}
           />
 
           <Group position="right" mt="md">
-            <Button type="submit">登録</Button>
+            <Button onClick={handleSubmit}>登録</Button>
           </Group>
         </form>
       </Box>

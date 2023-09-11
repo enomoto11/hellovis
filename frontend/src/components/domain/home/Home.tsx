@@ -1,16 +1,16 @@
-import { useAuth0 } from '@auth0/auth0-react';
 import { memo } from 'react';
 import { Button } from '@mantine/core';
+import { useAuth } from '../../../provider/Auth0provider';
 
 export const Home = memo(() => {
-  const { logout } = useAuth0();
+  const authParams = useAuth();
 
   return (
     <div>
       <h1>Home</h1>
       <Button
         onClick={() => {
-          logout();
+          authParams?.logout();
         }}
       >
         Log out
