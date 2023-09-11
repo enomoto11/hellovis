@@ -6,6 +6,7 @@ import { NotFound } from './components/domain/not-found/NotFound';
 import { Route, Routes, BrowserRouter } from 'react-router-dom';
 import { SideBar } from './components/base/side-bar/SideBar';
 import { Flex } from '@mantine/core';
+import { Students } from './components/domain/general/students';
 
 function App() {
   const { isAuthenticated } = useAuth0();
@@ -30,6 +31,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="students" element={<Students />} />
           </Routes>
         </BrowserRouter>
       </Flex>

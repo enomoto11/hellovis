@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,6 +21,19 @@ type Controller interface {
 
 func InitAPI() (*gin.Engine, *ent.Client) {
 	router := gin.Default()
+	arrowOrigins := []string{"http://localhost:3000", "https://hellovis.vercel.app"}
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: arrowOrigins,
+		AllowMethods: []string{
+			"POST",
+			"GET",
+			"DELETE",
+			"PATCH",
+		},
+		AllowHeaders: []string{
+			"Content-Type",
+		},
+	}))
 
 	path := fmt.Sprintf("%s:%s@tcp(db:3306)/%s?charset=utf8&parseTime=true", os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASSWORD"), os.Getenv("MYSQL_DATABASE"))
 	entClient, err := ent.Open("mysql", path)
