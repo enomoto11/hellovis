@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { IP } from '../env/ip/whiteList';
 
 const FETCH_IP_ADDRESS_URL = 'https://api.ipify.org?format=json';
@@ -23,7 +23,10 @@ export const useIPAccess = () => {
 
   const whiteList = new IP().getWhiteList();
 
-  const isValidAccess = whiteList.includes(ipAddress);
+  const isValidAccess = useMemo(
+    () => whiteList.includes(ipAddress),
+    [ipAddress],
+  );
 
   return {
     isValidAccess,

@@ -11,11 +11,11 @@ axios.defaults.baseURL = 'http://localhost:8080';
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const root = createRoot(document.getElementById('root')!);
 root.render(
-  <Auth0Provider>
-    <QueryClientProvider>
-      <React.StrictMode>
+  <React.StrictMode>
+    <Auth0Provider>
+      <QueryClientProvider>
         <App />
-      </React.StrictMode>
-    </QueryClientProvider>
-  </Auth0Provider>,
+      </QueryClientProvider>
+    </Auth0Provider>
+  </React.StrictMode>,
 );
